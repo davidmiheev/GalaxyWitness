@@ -27,7 +27,7 @@ To run just type:
     
     $ python -m galaxywitness
 
-In runtime the program will request you to enter a number of processes for parallel computation. If your machine doesn't run on Linux type 1. Else you can type value > 1 (for example number of cores, <code>nproc</code>)
+In runtime the program will request you to enter a number of processes for parallel computation. If you are using Linux you can type value > 1 (for example number of cores, <code>nproc</code>). If your machine doesn't run on Linux type 1. 
 
 If you want to finish a work with package and deactivate virtual environment just type:
 
