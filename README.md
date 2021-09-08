@@ -26,7 +26,10 @@ This will clone the repository "GalaxyWitness" on your local machine, install de
 To run just type:
     
     $ python -m galaxywitness
-if you want to finish a work with package and deactivate virtual environment just type:
+
+In runtime the program will request you to enter a number of processes for parallel computation. If your machine doesn't run on Linux type 1. Else you can type value > 1 (for example number of cores, <code>nproc</code>)
+
+If you want to finish a work with package and deactivate virtual environment just type:
 
     $ deacivate
 ## Uninstalling
