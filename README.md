@@ -11,7 +11,7 @@ You can use python virtual environment for the best experience
 This will create a new virtual environment called "galaxy-witness":
 
     $ pip install virtualenv
-    $ virtualenv galaxy-witness
+    $ virtualenv galaxy-witness (or python3 -m virtualenv galaxy-witness)
     $ . ./galaxy-witness/bin/activate
         
 ### Installing GalaxyWitness
@@ -27,7 +27,7 @@ To run just type:
     
     $ python -m galaxywitness
 
-In runtime the program will request you to enter a number of processes for parallel computation. If you are using Linux you can type value > 1 (for example number of cores, <code>nproc</code>). If your machine doesn't run on Linux type 1. 
+In runtime the program will request you to enter a number of processes for parallel computation. If you are using Linux, type value >= 1 (for example number of cores, <code>nproc</code>). If your machine doesn't run on Linux always type 1. 
 
 If you want to finish a work with package and deactivate virtual environment just type:
 
