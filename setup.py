@@ -9,7 +9,7 @@ setuptools.setup(
     author='David Miheev',
     author_email='davidhomemail29@gmail.com',
     packages=['galaxywitness'],
-    url='',
+    url='https://github.com/DavidOSX/GalaxyWitness',
     description='Package for topological analysis of galactic clusters with witness complex construction.',
     long_description=long_description,
     long_description_content_type="text/markdown",
