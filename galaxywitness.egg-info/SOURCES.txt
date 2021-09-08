@@ -1,0 +1,9 @@
+README.md
+setup.py
+galaxywitness/__init__.py
+galaxywitness/__main__.py
+galaxywitness/witness_complex.py
+galaxywitness.egg-info/PKG-INFO
+galaxywitness.egg-info/SOURCES.txt
+galaxywitness.egg-info/dependency_links.txt
+galaxywitness.egg-info/top_level.txt
