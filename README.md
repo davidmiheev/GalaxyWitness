@@ -26,7 +26,9 @@ This will clone the repository "GalaxyWitness" on your local machine, install de
 To run just type:
     
     $ python -m galaxywitness
+if you want to finish a work with package and deactivate virtual environment just type:
 
+    $ deacivate
 ## Uninstalling
 Full uninstalling (include dependencies and an virtual environment)
  
