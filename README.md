@@ -4,6 +4,7 @@ Package for topological analysis of galactic clusters with witness complex const
 ## Requirements
 1. Python 3.6+ and pip
 2. git
+
 Optional: Linux (for multiprocessing)
 
 ## Installation
