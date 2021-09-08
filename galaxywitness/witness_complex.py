@@ -2,7 +2,7 @@ import math
 import os
 
 import numpy as np
-import multiprocess as mp
+import multiprocessing as mp
 
 import matplotlib.pyplot as plt
 import torch
