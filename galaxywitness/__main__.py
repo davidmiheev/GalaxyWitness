@@ -14,13 +14,13 @@ import pandas as pd
 from galaxywitness.witness_complex import WitnessComplex
 
 print("\n     Let's go, first preconfiguration\n")
+
 n_gal = int(input("Enter number of galaxies: "))
-n_jobs = int(input("Enter number of processes: "))
 n_landmarks = int(input("Enter number of landmarks: "))
+n_jobs = int(input("Enter number of processes: "))
+
 key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
-if key == 'n':
-    d_max = int(input("Enter max dimension of \u2119\u210d to compute: "))
-    d_max += 1
+
 
 print("#########################################################################################\n")
 
@@ -34,16 +34,12 @@ print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We h
 print(f"{df['z_gal'].size} galaxies")
 print("\n#########################################################################################\n")
 witnesses = torch.tensor(df[['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']].values[:n_gal])
-#indexes = torch.rand(int(n_gal/3), 1)
+
 landmarks = torch.zeros(n_landmarks, 3)
 landmarks_factor = int(n_gal/n_landmarks)
-j = 0
-for i in range(0, n_gal, landmarks_factor):
-    if j < n_landmarks: 
-        landmarks[j, :] = witnesses[i, :]
-        j += 1
 
-#print(witnesses)
+for i, j in zip(range(0, n_gal, landmarks_factor), range(0, n_landmarks)): 
+        landmarks[j, :] = witnesses[i, :]
 
 # plot point cloud
 fig = plt.figure()
@@ -63,7 +59,9 @@ wc = WitnessComplex(landmarks, witnesses)
 
 if key == 'n':
     t = time.time()
-    wc.compute_simplicial_complex(d_max = d_max, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs) #simplex_tree = wc.simplex_tree 
+    wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs) 
+    simplex_tree = wc.simplex_tree
+    print(simplex_tree.dimension()) 
     t = time.time() - t
     wc.get_diagram(show = True, path_to_save = None) 
     wc.get_barcode(show = True, path_to_save = None)
@@ -78,15 +76,3 @@ if key == 'y':
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 #print(wc.landmarks_dist, end="\n#####\n")
 
-#max_ra = float(landmarks[:, 0].max())
-#min_ra = float(landmarks[:, 0].min())
-#max_de = float(landmarks[:, 1].max())
-#min_de = float(landmarks[:, 1].min())
-#max_z = float(landmarks[:, 2].max())
-#min_z = float(landmarks[:, 2].min())
-#scale_ra = (max_ra - min_ra)/2
-#scale_de = (max_de - min_de)/2
-#scale_z = (max_z - min_z)/2
-#med_ra = (max_ra + min_ra)/2
-#med_de = (max_de + min_de)/2
-#med_z = (max_z + min_z)/2
