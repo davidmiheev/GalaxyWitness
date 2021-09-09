@@ -6,7 +6,8 @@ for str1 in open ( "data/ansiname.txt" ):
     print("\t\t" + str1, end = "")
 
 import time 
-import os   
+import os
+import readline   
 import torch
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -14,13 +15,14 @@ from galaxywitness.witness_complex import WitnessComplex
 
 print("\n     Let's go, first preconfiguration\n")
 n_gal = int(input("Enter number of galaxies: "))
-n_proc = int(input("Enter number of processes: "))
+n_jobs = int(input("Enter number of processes: "))
 n_landmarks = int(input("Enter number of landmarks: "))
 key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
 if key == 'n':
-    max_d = input("Enter max dimension of \u2119\u210d to compute :")
+    d_max = int(input("Enter max dimension of \u2119\u210d to compute: "))
+    d_max += 1
 
-print("############################\n")
+print("#########################################################################################\n")
 
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
 print(f"Load data from \033[01;32m{path}\033[0m...")
@@ -30,7 +32,7 @@ t = time.time() - t
 
 print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about " , end = "")
 print(f"{df['z_gal'].size} galaxies")
-print("\n#############################################################\n")
+print("\n#########################################################################################\n")
 witnesses = torch.tensor(df[['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']].values[:n_gal])
 #indexes = torch.rand(int(n_gal/3), 1)
 landmarks = torch.zeros(n_landmarks, 3)
@@ -54,20 +56,20 @@ ax.scatter(landmarks[:n_points_for_plot_2, 0], landmarks[:n_points_for_plot_2, 1
 
 plt.show()
 
-print("\n#############################################################\n")
+print("\n#########################################################################################\n")
 print("Compute persistence with witness complex and draw persitence diagram and barcode...")
 
 wc = WitnessComplex(landmarks, witnesses)
 
 if key == 'n':
     t = time.time()
-    wc.compute_simplicial_complex(d_max = max_d + 1, create_simplex_tree = True, create_metric = True, n_jobs = n_proc) #simplex_tree = wc.simplex_tree 
+    wc.compute_simplicial_complex(d_max = d_max, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs) #simplex_tree = wc.simplex_tree 
     t = time.time() - t
     wc.get_diagram(show = True, path_to_save = None) 
     wc.get_barcode(show = True, path_to_save = None)
 if key == 'y':
     t = time.time()
-    wc.compute_metric_optimized(n_jobs = n_proc)
+    wc.compute_metric_optimized(n_jobs = n_jobs)
     wc.compute_1d_simplex_tree()
     t = time.time() - t
     wc.get_diagram(show = True, path_to_save = None) 

@@ -111,7 +111,7 @@ class WitnessComplex():
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
         
-    ###############################################
+    #########################################################################################
 
     def _update_register_simplex(self, simplicial_complex_temp, i_add, i_dist, max_dim=math.inf):
         simplex_add = []
