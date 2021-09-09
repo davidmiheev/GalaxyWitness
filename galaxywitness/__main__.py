@@ -22,7 +22,7 @@ n_jobs = int(input("Enter number of processes: "))
 key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
 
 
-print("#########################################################################################\n")
+print("\n#########################################################################################\n")
 
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
 print(f"Load data from \033[01;32m{path}\033[0m...")
@@ -30,8 +30,8 @@ t = time.time()
 df = pd.read_csv(path)
 t = time.time() - t
 
-print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about " , end = "")
-print(f"{df['z_gal'].size} galaxies")
+print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{df['z_gal'].size}\033[0m galaxies")
+
 print("\n#########################################################################################\n")
 witnesses = torch.tensor(df[['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']].values[:n_gal])
 
@@ -59,9 +59,7 @@ wc = WitnessComplex(landmarks, witnesses)
 
 if key == 'n':
     t = time.time()
-    wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs) 
-    simplex_tree = wc.simplex_tree
-    print(simplex_tree.dimension()) 
+    wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension()) 
     t = time.time() - t
     wc.get_diagram(show = True, path_to_save = None) 
     wc.get_barcode(show = True, path_to_save = None)
