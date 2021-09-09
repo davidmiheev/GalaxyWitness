@@ -7,7 +7,6 @@ import multiprocessing as mp
 import matplotlib.pyplot as plt
 import torch
 
-# dirty fix since gudhi cannot be installed on ETH Zurich cluster
 # gudhi is needed to construct a simplex tree and to plot the persistence diagram.
 try:
     import gudhi
