@@ -100,6 +100,19 @@ class WitnessComplex():
             self.landmarks_dist = torch.min(torch.stack((results)), dim=0)[0]
             self.metric_computed = True
 
+    def compute_1d_simplex_tree(self):
+        assert self.metric_computed
+        simplex_tree = gudhi.SimplexTree()
+        
+        for i in range(0, len(self.landmarks)):
+            for j in range(i, len(self.landmarks)):
+                simplex_tree.insert([i, j], float(self.landmarks_dist[i][j]))
+                
+        self.simplex_tree = simplex_tree
+        self.simplex_tree_computed = True
+        
+    ###############################################
+
     def _update_register_simplex(self, simplicial_complex_temp, i_add, i_dist, max_dim=math.inf):
         simplex_add = []
         for e in simplicial_complex_temp:

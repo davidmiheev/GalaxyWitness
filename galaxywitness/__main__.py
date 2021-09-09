@@ -16,6 +16,10 @@ print("\n     Let's go, first preconfiguration\n")
 n_gal = int(input("Enter number of galaxies: "))
 n_proc = int(input("Enter number of processes: "))
 n_landmarks = int(input("Enter number of landmarks: "))
+key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
+if key == 'n':
+    max_d = input("Enter max dimension of \u2119\u210d to compute :")
+
 print("############################\n")
 
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
@@ -52,18 +56,25 @@ plt.show()
 
 print("\n#############################################################\n")
 print("Compute persistence with witness complex and draw persitence diagram and barcode...")
-t = time.time()
-# computation of a witness simplicial complex and construct barcode
+
 wc = WitnessComplex(landmarks, witnesses)
 
-wc.compute_simplicial_complex(d_max = 1, create_simplex_tree = True, create_metric = True, n_jobs = n_proc)
+if key == 'n':
+    t = time.time()
+    wc.compute_simplicial_complex(d_max = max_d + 1, create_simplex_tree = True, create_metric = True, n_jobs = n_proc) #simplex_tree = wc.simplex_tree 
+    t = time.time() - t
+    wc.get_diagram(show = True, path_to_save = None) 
+    wc.get_barcode(show = True, path_to_save = None)
+if key == 'y':
+    t = time.time()
+    wc.compute_metric_optimized(n_jobs = n_proc)
+    wc.compute_1d_simplex_tree()
+    t = time.time() - t
+    wc.get_diagram(show = True, path_to_save = None) 
+    wc.get_barcode(show = True, path_to_save = None)
 
-simplex_tree = wc.simplex_tree #how to retrieve the simplex_tree
-t = time.time() - t
-wc.get_diagram(show = True, path_to_save = None) # allows to directly plot a persistence diagram
-wc.get_barcode(show = True, path_to_save = None)
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
-
+#print(wc.landmarks_dist, end="\n#####\n")
 
 #max_ra = float(landmarks[:, 0].max())
 #min_ra = float(landmarks[:, 0].min())
