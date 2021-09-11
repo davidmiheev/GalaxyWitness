@@ -94,11 +94,14 @@ class WitnessComplex():
         else:
             if n_jobs == -1:
                 n_jobs = os.cpu_count()
+            mp.set_start_method('fork')
             pool = mp.Pool(processes=n_jobs)
             distances_chunk = np.array_split(self.distances, n_jobs)
 
             results = pool.map(_compute_metric_multiprocessing, distances_chunk)
-
+            pool.close()
+            pool.join()
+            
             self.landmarks_dist = torch.min(torch.stack((results)), dim=0)[0]
             self.metric_computed = True
 
@@ -278,13 +281,15 @@ class WitnessComplex():
             n_jobs = mp.cpu_count()
 
         if True:
+            mp.set_start_method('fork')
             pool = mp.Pool(processes=n_jobs)
             distances_chunk = np.array_split(self.distances, n_jobs)
 
-            results = pool.map(process_wc, distances_chunk)
+            results = pool.imap(process_wc, distances_chunk)
 
             pool.close()
-
+            pool.join()
+            
             simplicial_complex, landmarks_dist = combine_results(results, create_metric,
                                                                  create_simplex_tree)
         if create_simplex_tree:
