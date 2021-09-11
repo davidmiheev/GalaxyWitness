@@ -5,7 +5,7 @@ Package for topological analysis of galactic clusters with witness complex const
 1. Python 3.6+ and pip
 2. git
 
-Optional: Linux (for multiprocessing)
+Optional: OSX or Linux (for multiprocessing)
 
 ## Installation
 You can use python virtual environment for the best experience
@@ -29,7 +29,7 @@ To run just type:
     
     $ python -m galaxywitness
 
-In runtime the program will request you to enter a number of processes for parallel computation. If you are using Linux, type value >= 1 or -1 (for example number of cores, <code>nproc</code>, for this option type -1). If your machine doesn't run on Linux always type 1. 
+In runtime the program will request you to enter a number of processes for parallel computation. If Unix-like operating system running on your machine, type -1 (to run <code>nproc</code> processes simultaneously). 
 
 If you want to finish a work with package and deactivate virtual environment just type:
 
