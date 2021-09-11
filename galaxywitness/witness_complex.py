@@ -341,7 +341,7 @@ class WitnessComplex():
         verts = []
         l = list(gen)
         scale = NUMBER_OF_FRAMES/l[-1][1]
-        print(l[-1][1], scale)
+
         for num in range(1, NUMBER_OF_FRAMES + 1):
             fig = plt.figure()
             ax = fig.add_subplot(projection = "3d")
