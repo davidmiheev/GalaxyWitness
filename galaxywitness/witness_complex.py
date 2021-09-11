@@ -285,7 +285,7 @@ class WitnessComplex():
             pool = mp.Pool(processes=n_jobs)
             distances_chunk = np.array_split(self.distances, n_jobs)
 
-            results = pool.imap(process_wc, distances_chunk)
+            results = pool.map(process_wc, distances_chunk)
 
             pool.close()
             pool.join()
