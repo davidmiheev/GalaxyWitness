@@ -5,6 +5,9 @@ import numpy as np
 import multiprocessing as mp
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
 import torch
 
 # gudhi is needed to construct a simplex tree and to plot the persistence diagram.
@@ -16,7 +19,7 @@ from sklearn.metrics import pairwise_distances
 
 # hard-coded
 MAX_DIST_INIT = 1000000
-
+NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
     __slots__ = [
@@ -330,3 +333,38 @@ class WitnessComplex():
     def check_distance_matrix(self):
         assert self.metric_computed
         return not np.any(self.landmarks_dist == MAX_DIST_INIT)
+        
+    def animate_simplex_tree(self):
+        assert self.simplex_tree_computed
+        gen = self.simplex_tree.get_filtration()
+        
+        verts = []
+        l = list(gen)
+        scale = NUMBER_OF_FRAMES/l[-1][1]
+        print(l[-1][1], scale)
+        for num in range(1, NUMBER_OF_FRAMES + 1):
+            fig = plt.figure()
+            ax = fig.add_subplot(projection = "3d")
+            ax.scatter(self.witnesses[:, 0], self.witnesses[:, 1], self.witnesses[:, 2], linewidths=0.1)
+            ax.scatter(self.landmarks[:, 0], self.landmarks[:, 1], self.landmarks[:, 2], linewidths=3.5)
+            for element in l:
+                if(element[1]*scale <= num):
+                    if(len(element[0]) == 2):
+                        x = [self.landmarks[element[0][0]][0], self.landmarks[element[0][1]][0]]
+                        y = [self.landmarks[element[0][0]][1], self.landmarks[element[0][1]][1]]
+                        z = [self.landmarks[element[0][0]][2], self.landmarks[element[0][1]][2]]
+                        ax.plot(x, y, z)
+                    if(len(element[0]) == 3):
+                        x = [self.landmarks[element[0][0]][0], self.landmarks[element[0][1]][0], self.landmarks[element[0][2]][0]]
+                        y = [self.landmarks[element[0][0]][1], self.landmarks[element[0][1]][1], self.landmarks[element[0][2]][1]]
+                        z = [self.landmarks[element[0][0]][2], self.landmarks[element[0][1]][2], self.landmarks[element[0][2]][2]]
+                        verts.append(list(zip(x, y, z)))
+                        poly = Poly3DCollection(verts)
+                        poly.set_color(colors.rgb2hex(np.random.rand(3)))
+                        ax.add_collection3d(poly)
+                        verts.clear()
+              
+            ax.set_title(f"Animation of witness filtration: picture #{num} of {NUMBER_OF_FRAMES}")
+            plt.show()
+        
+    

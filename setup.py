@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='galaxywitness',
-    version='0.0.1',
+    version='0.1',
     author='David Miheev',
     author_email='davidhomemail29@gmail.com',
     packages=['galaxywitness'],

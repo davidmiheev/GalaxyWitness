@@ -1,3 +1,4 @@
+
 print("\n")
 for str in open ( "data/ansi.txt" ):
     print("\t\t\t" + str, end = "")
@@ -20,6 +21,7 @@ n_landmarks = int(input("Enter number of landmarks: "))
 n_jobs = int(input("Enter number of processes: "))
 
 key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
+key_anim = input("Do you want watch the animation of witness filtration (works only if |landmarks| <= 50)? [y/n]: ")
 
 
 print("\n#########################################################################################\n")
@@ -47,8 +49,8 @@ ax = fig.add_subplot(projection='3d')
 n_points_for_plot_1 = min(n_gal, 10000)
 n_points_for_plot_2 = min(n_landmarks, 1000)
 
-ax.scatter(witnesses[:n_points_for_plot_1, 0], witnesses[:n_points_for_plot_1, 1], witnesses[:n_points_for_plot_1, 2])
-ax.scatter(landmarks[:n_points_for_plot_2, 0], landmarks[:n_points_for_plot_2, 1], landmarks[:n_points_for_plot_2, 2])
+ax.scatter(witnesses[:n_points_for_plot_1, 0], witnesses[:n_points_for_plot_1, 1], witnesses[:n_points_for_plot_1, 2], linewidths=0.1)
+ax.scatter(landmarks[:n_points_for_plot_2, 0], landmarks[:n_points_for_plot_2, 1], landmarks[:n_points_for_plot_2, 2], linewidths=3.5)
 
 plt.show()
 
@@ -59,7 +61,7 @@ wc = WitnessComplex(landmarks, witnesses)
 
 t = time.time()
 if key == 'n':
-    wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension()) 
+    wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = False, n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension()) 
     
 if key == 'y':
     t = time.time()
@@ -68,9 +70,12 @@ if key == 'y':
 
 t = time.time() - t
 
+if key_anim == 'y' and n_landmarks <= 50:
+    wc.animate_simplex_tree()
 wc.get_diagram(show = True, path_to_save = None) 
 wc.get_barcode(show = True, path_to_save = None)
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 #print(wc.landmarks_dist, end="\n#####\n")
 
 
+            
