@@ -57,20 +57,20 @@ print("Compute persistence with witness complex and draw persitence diagram and 
 
 wc = WitnessComplex(landmarks, witnesses)
 
+t = time.time()
 if key == 'n':
-    t = time.time()
     wc.compute_simplicial_complex(d_max = 2, create_simplex_tree = True, create_metric = True, n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension()) 
-    t = time.time() - t
-    wc.get_diagram(show = True, path_to_save = None) 
-    wc.get_barcode(show = True, path_to_save = None)
+    
 if key == 'y':
     t = time.time()
     wc.compute_metric_optimized(n_jobs = n_jobs)
     wc.compute_1d_simplex_tree()
-    t = time.time() - t
-    wc.get_diagram(show = True, path_to_save = None) 
-    wc.get_barcode(show = True, path_to_save = None)
 
+t = time.time() - t
+
+wc.get_diagram(show = True, path_to_save = None) 
+wc.get_barcode(show = True, path_to_save = None)
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 #print(wc.landmarks_dist, end="\n#####\n")
+
 
