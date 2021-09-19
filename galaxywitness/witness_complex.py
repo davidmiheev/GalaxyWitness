@@ -19,6 +19,7 @@ from sklearn.metrics import pairwise_distances
 
 # hard-coded
 MAX_DIST_INIT = 1000000
+MAX_N_PLOT = 20000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
@@ -43,11 +44,11 @@ class WitnessComplex():
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
 
 
-    def compute_simplicial_complex(self, d_max, create_metric=False, r_max=None,create_simplex_tree=False, n_jobs = 1):
+    def compute_simplicial_complex(self, d_max, create_metric=False, r_max=None, create_simplex_tree=False, n_jobs = 1):
         if n_jobs == 1:
-            self.compute_simplicial_complex_single(d_max=d_max, create_metric=create_metric, r_max=r_max,create_simplex_tree=create_simplex_tree)
+            self.compute_simplicial_complex_single(d_max=d_max, create_metric=create_metric, r_max=r_max, create_simplex_tree=create_simplex_tree)
         else:
-            self.compute_simplicial_complex_parallel(d_max=d_max, r_max=r_max, create_simplex_tree=create_simplex_tree, create_metric=create_metric,n_jobs=n_jobs)
+            self.compute_simplicial_complex_parallel(d_max=d_max, r_max=r_max, create_simplex_tree=create_simplex_tree, create_metric=create_metric, n_jobs=n_jobs)
 
     def _compute_metric_for_one_witness(self, row):
         sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
@@ -105,13 +106,14 @@ class WitnessComplex():
             self.landmarks_dist = torch.min(torch.stack((results)), dim=0)[0]
             self.metric_computed = True
 
-    def compute_1d_simplex_tree(self):
+    def compute_1d_simplex_tree(self, r_max = None):
         assert self.metric_computed
         simplex_tree = gudhi.SimplexTree()
         
         for i in range(0, len(self.landmarks)):
             for j in range(i, len(self.landmarks)):
-                simplex_tree.insert([i, j], float(self.landmarks_dist[i][j]))
+                if float(self.landmarks_dist[i][j]) < r_max:
+                    simplex_tree.insert([i, j], float(self.landmarks_dist[i][j]))
                 
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
@@ -122,7 +124,7 @@ class WitnessComplex():
         simplex_add = []
         for e in simplicial_complex_temp:
             element = e[0]
-            if (element[0] is not i_add and len(element) is 1) or (1 < len(element) < max_dim+1):
+            if (element[0] != i_add and len(element) == 1) or (1 < len(element) < max_dim+1):
                 element_copy = element.copy()
                 element_copy.append(i_add)
                 simplex_add.append([element_copy, i_dist])
@@ -209,7 +211,7 @@ class WitnessComplex():
                 simplex_add = []
                 for e in simplicial_complex:
                     element = e[0]
-                    if (element[0] is not i_add and len(element) is 1) or (
+                    if (element[0] != i_add and len(element) == 1) or (
                             1 < len(element) < max_dim+1):
                         element_copy = element.copy()
                         element_copy.append(i_add)
@@ -257,7 +259,7 @@ class WitnessComplex():
 
             for i, result in enumerate(results):
                 if create_metric:
-                    if i is 0:
+                    if i == 0:
                         landmarks_dist = result[0]
                     else:
                         landmarks_dist = np.dstack((landmarks_dist, result[0]))
@@ -316,7 +318,7 @@ class WitnessComplex():
 
 
         if path_to_save is not None:
-            plt.savefig(path_to_save, dpi=200)
+            plt.savefig(path_to_save + '/diagram.png', dpi = 200)
         if show:
             plt.show()
         plt.close()
@@ -330,7 +332,7 @@ class WitnessComplex():
 
 
         if path_to_save is not None:
-            plt.savefig(path_to_save, dpi=200)
+            plt.savefig(path_to_save + '/barcode.png', dpi = 200)
         if show:
             plt.show()
         plt.close()
@@ -339,7 +341,7 @@ class WitnessComplex():
         assert self.metric_computed
         return not np.any(self.landmarks_dist == MAX_DIST_INIT)
         
-    def animate_simplex_tree(self):
+    def animate_simplex_tree(self, path_to_save):
         assert self.simplex_tree_computed
         gen = self.simplex_tree.get_filtration()
         
@@ -350,8 +352,11 @@ class WitnessComplex():
         for num in range(1, NUMBER_OF_FRAMES + 1):
             fig = plt.figure()
             ax = fig.add_subplot(projection = "3d")
-            ax.scatter(self.witnesses[:, 0], self.witnesses[:, 1], self.witnesses[:, 2], linewidths=0.1)
-            ax.scatter(self.landmarks[:, 0], self.landmarks[:, 1], self.landmarks[:, 2], linewidths=3.5)
+            ax.scatter(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], linewidths=0.1)
+            ax.scatter(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], linewidths=3.5)
+            ax.set_xlabel('X, Mpc')
+            ax.set_ylabel('Y, Mpc')
+            ax.set_zlabel('Z, Mpc')
             for element in l:
                 if(element[1]*scale <= num):
                     if(len(element[0]) == 2):
@@ -370,6 +375,8 @@ class WitnessComplex():
                         verts.clear()
               
             ax.set_title(f"Animation of witness filtration: picture #{num} of {NUMBER_OF_FRAMES}")
+            if path_to_save is not None:
+                plt.savefig(path_to_save + f"/picture#{num}.png", dpi = 200)
             plt.show()
-        
+            
     
