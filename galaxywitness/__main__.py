@@ -1,9 +1,9 @@
 
 print("\n")
-for str1 in open ( "data/ansi.txt" ):
+for str1 in open ( "galaxywitness/ansi.txt" ):
     print("\t\t\t" + str1, end = "")
 
-for str2 in open ( "data/ansiname.txt" ):
+for str2 in open ( "galaxywitness/ansiname.txt" ):
     print("\t\t" + str2, end = "")
     
 ###########################################    
@@ -30,6 +30,20 @@ n_jobs = int(input("Enter number of processes: "))
 key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
 key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
 key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
+key_adv = input("Advanced configuration? [y/n]: ")
+r_max = None
+path = os.path.abspath('.') + '/data/result_glist_s.csv' 
+if(key_adv) == 'y':
+    r_max = int(input("Enter max value of filtration: "))
+    data_tables = os.walk('./data')
+    print("\n\t---------- data -----------")
+    for _, _, elem in data_tables:
+        for name in elem:
+            print(f"\t{elem.index(name)+1} <- {name}")
+    print("\t---------------------------\n")
+    table_num = int(input(f"Enter number of your table [1-{len(elem)}]: "))
+    path = os.path.abspath('.') + '/data/' +  elem[table_num - 1] 
+    #cosmology = input("Enter cosmology model: ")
 
 time_list = list(time.localtime())
 time_str = ''
@@ -46,7 +60,6 @@ if key_save == 'y':
         
 print("\n#########################################################################################\n")
 
-path = os.path.abspath('.') + '/data/result_glist_s.csv'
 print(f"Load data from \033[01;32m{path}\033[0m...")
 t = time.time()
 df = pd.read_csv(path)
@@ -55,17 +68,19 @@ t = time.time() - t
 print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{df['z_gal'].size}\033[0m galaxies")
 
 print("\n#########################################################################################\n")
-print("Preprocessing data and plot the data cloud...")
+print("Preprocessing data and plot the point cloud...")
+t = time.time()
 witnesses = torch.tensor(df[['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']].values[:n_gal])
-c = SkyCoord(ra = witnesses[:, 0]*u.degree, dec = witnesses[:,1]*u.degree, distance = Distance(z = witnesses[:, 2]))
-witnesses = (torch.tensor(c.cartesian.xyz)).transpose(0,1)
+coord = SkyCoord(ra = witnesses[:, 0]*u.degree, dec = witnesses[:, 1]*u.degree, distance = Distance(z = witnesses[:, 2]))
+witnesses = (torch.tensor(coord.cartesian.xyz)).transpose(0,1)
 
 landmarks = torch.zeros(n_landmarks, 3)
 landmarks_factor = int(n_gal/n_landmarks)
 
 for i, j in zip(range(0, n_gal, landmarks_factor), range(0, n_landmarks)): 
         landmarks[j, :] = witnesses[i, :]
-
+t = time.time() - t
+print(f"Preprocessing done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.")
 # plot point cloud
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
@@ -89,12 +104,12 @@ wc = WitnessComplex(landmarks, witnesses)
 
 t = time.time()
 if key == 'n':
-    wc.compute_simplicial_complex(d_max = 2, create_metric = False, r_max = 90, create_simplex_tree = True,  n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension())  
+    wc.compute_simplicial_complex(d_max = 2, create_metric = False, r_max = r_max, create_simplex_tree = True,  n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension())  
     
 if key == 'y':
     t = time.time()
     wc.compute_metric_optimized(n_jobs = n_jobs)
-    wc.compute_1d_simplex_tree(r_max = 90)
+    wc.compute_1d_simplex_tree(r_max = r_max)
 
 t = time.time() - t
 
