@@ -9,17 +9,20 @@ import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import torch
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import floyd_warshall
 
 # gudhi is needed to construct a simplex tree and to plot the persistence diagram.
 try:
     import gudhi
+    from gudhi.clustering.tomato import Tomato
 except:
     print('Failed to import gudhi')
 from sklearn.metrics import pairwise_distances
 
 # hard-coded
-MAX_DIST_INIT = 1000000
-MAX_N_PLOT = 20000
+#MAX_DIST_INIT = 100000
+MAX_N_PLOT = 3000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
@@ -27,31 +30,57 @@ class WitnessComplex():
         'landmarks',
         'witnesses',
         'distances',
-        'simplicial_complex',
+        'distances_isomap',
+        'landmarks_idxs',
+        'isomap_eps',
         'landmarks_dist',
         'simplex_tree',
         'simplex_tree_computed',
         'metric_computed'
     ]
 
-    def __init__(self, landmarks, witnesses, n_jobs = 1):
+    def __init__(self, landmarks, witnesses, landmarks_idxs, n_jobs = 1, isomap_eps = 0):
         #todo: implement other metrices
         self.landmarks = landmarks
         self.witnesses = witnesses
         self.metric_computed = False
         self.simplex_tree_computed = False
+        self.landmarks_idxs = landmarks_idxs
+        self.isomap_eps = isomap_eps
 
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
+        if isomap_eps > 0:
+            #distances = pairwise_distances(witnesses, n_jobs = -1)
+                        
+            # todo: optimize
+            def _create_large_matrix():
+                matrix = np.zeros((self.distances.shape[0], self.distances.shape[0]))
+                for i in range(self.distances.shape[0]):
+                    for j in range(self.distances.shape[1]):
+                        if self.distances[i][j] < self.isomap_eps:
+                            matrix[i][landmarks_idxs[j]] = self.distances[i][j]
+                return matrix
+            def _create_small_matrix(matrix):
+                for i in range(self.distances.shape[0]):
+                    for j in range(self.distances.shape[1]):
+                            self.distances[i][j] = matrix[i][landmarks_idxs[j]]
+                
+            matrix = _create_large_matrix()
+            matrix = csr_matrix(matrix)
+            matrix = floyd_warshall(csgraph = matrix, directed = False)
+            self.distances_isomap = matrix
+            _create_small_matrix(matrix)
 
 
     def compute_simplicial_complex(self, d_max, create_metric=False, r_max=None, create_simplex_tree=False, n_jobs = 1):
         if n_jobs == 1:
-            self.compute_simplicial_complex_single(d_max=d_max, create_metric=create_metric, r_max=r_max, create_simplex_tree=create_simplex_tree)
+            self.compute_simplicial_complex_single(d_max=d_max, r_max=r_max)
         else:
-            self.compute_simplicial_complex_parallel(d_max=d_max, r_max=r_max, create_simplex_tree=create_simplex_tree, create_metric=create_metric, n_jobs=n_jobs)
+            self.compute_simplicial_complex_parallel(d_max=d_max, r_max=r_max, n_jobs=n_jobs)
 
     def _compute_metric_for_one_witness(self, row):
         sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
+            
         landmark_dist_w = torch.ones(len(self.landmarks), len(self.landmarks))*math.inf
         for element in sorted_row:
             landmark_dist_w[element[0], :] = torch.ones(len(self.landmarks))*element[1]
@@ -112,7 +141,7 @@ class WitnessComplex():
         
         for i in range(0, len(self.landmarks)):
             for j in range(i, len(self.landmarks)):
-                if float(self.landmarks_dist[i][j]) < r_max:
+                if r_max is None or float(self.landmarks_dist[i][j]) < r_max:
                     simplex_tree.insert([i, j], float(self.landmarks_dist[i][j]))
                 
         self.simplex_tree = simplex_tree
@@ -132,31 +161,19 @@ class WitnessComplex():
                 pass
         return simplex_add
 
-    def _update_landmark_dist(self, landmarks_dist, simplex_add):
-
-        for simplex in simplex_add:
-            if len(simplex[0]) == 2:
-                if landmarks_dist[simplex[0][0]][simplex[0][1]] > simplex[1]:
-                    landmarks_dist[simplex[0][0]][simplex[0][1]] = simplex[1]
-                    landmarks_dist[simplex[0][1]][simplex[0][0]] = simplex[1]
-        return landmarks_dist
-
-    def compute_simplicial_complex_single(self, d_max, create_metric=False, r_max=None,create_simplex_tree=False):
+    def compute_simplicial_complex_single(self, d_max, r_max=None):
         '''
         Computes simplex tree and a matrix containing the filtration values for the appearance of 1-simplicies.
         d_max: max dimension of simplicies in the simplex tree
         r_max: max filtration value
         '''
 
-        if create_simplex_tree:
-            simplicial_complex = []
-            try:
-                simplex_tree = gudhi.SimplexTree()
-            except:
-                print('Cannot create simplex tree')
 
-        if create_metric:
-            landmarks_dist = np.ones((len(self.landmarks), len(self.landmarks)))*MAX_DIST_INIT
+        simplicial_complex = []
+        try:
+            simplex_tree = gudhi.SimplexTree()
+        except:
+            print('Cannot create simplex tree')
 
         for row_i in range(self.distances.shape[0]):
             row = self.distances[row_i, :]
@@ -175,36 +192,26 @@ class WitnessComplex():
                 simplices_temp.append([[sorted_row[i][0]], sorted_row[i][1]])
                 simplex_add = self._update_register_simplex(simplices_temp.copy(), sorted_row[i][0],
                                                             sorted_row[i][1], d_max)
-                if create_metric:
-                    landmarks_dist = self._update_landmark_dist(landmarks_dist, simplex_add)
+                
                 simplices_temp += simplex_add
 
-            if create_simplex_tree:
-                simplicial_complex += simplices_temp
+            simplicial_complex += simplices_temp
 
-        if create_metric:
-            np.fill_diagonal(landmarks_dist, 0)
-            self.landmarks_dist = landmarks_dist
-            self.metric_computed = True
+            #self.simplicial_complex = simplicial_complex
+        sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
 
-        if create_simplex_tree:
-            self.simplicial_complex = simplicial_complex
-            sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
+        for simplex in sorted_simplicial_compex:
+            simplex_tree.insert(simplex[0], filtration=simplex[1])
+            self.simplex_tree = simplex_tree
+        
+        self.simplex_tree_computed = True
 
-            for simplex in sorted_simplicial_compex:
-                simplex_tree.insert(simplex[0], filtration=simplex[1])
-                self.simplex_tree = simplex_tree
-            self.simplex_tree_computed = True
-
-    def compute_simplicial_complex_parallel(self, d_max=math.inf, r_max=math.inf,
-                                            create_simplex_tree=False, create_metric=False,
-                                            n_jobs=-1):
+    def compute_simplicial_complex_parallel(self, d_max=math.inf, r_max=math.inf, n_jobs=-1):
+        
         global process_wc
 
-        def process_wc(distances, r_max=r_max, d_max=d_max, create_metric=create_metric,
-                       create_simplex_tree=create_simplex_tree):
+        def process_wc(distances, r_max=r_max, d_max=d_max):
 
-            landmarks_dist = np.ones((distances.shape[1], distances.shape[1]))*MAX_DIST_INIT
             simplicial_complex = []
 
             def update_register_simplex(simplicial_complex, i_add, i_dist, max_dim):
@@ -220,13 +227,6 @@ class WitnessComplex():
                         pass
                 return simplex_add
 
-            def update_landmark_dist(landmarks_dist, simplex_add):
-                for simplex in simplex_add:
-                    if len(simplex[0]) == 2:
-                        if landmarks_dist[simplex[0][0]][simplex[0][1]] > simplex[1]:
-                            landmarks_dist[simplex[0][0]][simplex[0][1]] = simplex[1]
-                            landmarks_dist[simplex[0][1]][simplex[0][0]] = simplex[1]
-                return landmarks_dist
 
             for row_i in range(distances.shape[0]):
                 row = distances[row_i, :]
@@ -244,40 +244,26 @@ class WitnessComplex():
                     simplex_add = update_register_simplex(simplices_temp.copy(),
                                                           sorted_row[i][0],
                                                           sorted_row[i][1], d_max)
-                    if create_metric:
-                        landmarks_dist = update_landmark_dist(landmarks_dist, simplex_add)
+                    
                     simplices_temp += simplex_add
 
-                if create_simplex_tree:
-                    simplicial_complex += simplices_temp
+                simplicial_complex += simplices_temp
 
-            return landmarks_dist, simplicial_complex
+            return simplicial_complex
 
-        def combine_results(results, create_metric, create_simplex_tree):
+        def combine_results(results):
 
             simplicial_complex = []
 
-            for i, result in enumerate(results):
-                if create_metric:
-                    if i == 0:
-                        landmarks_dist = result[0]
-                    else:
-                        landmarks_dist = np.dstack((landmarks_dist, result[0]))
-                else:
-                    landmarks_dist = result[0]
+            for result in results:
+                simplicial_complex += result
 
-                if create_simplex_tree:
-                    simplicial_complex += result[1]
+            return simplicial_complex
 
-            if create_metric:
-                landmarks_dist = np.amin(landmarks_dist, axis=2)
-            return simplicial_complex, landmarks_dist
-
-        if create_simplex_tree:
-            try:
-                simplex_tree = gudhi.SimplexTree()
-            except:
-                print('Cannot create simplex tree')
+        try:
+            simplex_tree = gudhi.SimplexTree()
+        except:
+            print('Cannot create simplex tree')
 
         if n_jobs == -1:
             n_jobs = mp.cpu_count()
@@ -292,22 +278,17 @@ class WitnessComplex():
             pool.close()
             pool.join()
             
-            simplicial_complex, landmarks_dist = combine_results(results, create_metric,
-                                                                 create_simplex_tree)
-        if create_simplex_tree:
-            self.simplicial_complex = simplicial_complex
-            sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
+            simplicial_complex = combine_results(results)
+        
+            #self.simplicial_complex = simplicial_complex
+        sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
 
-            for simplex in sorted_simplicial_compex:
-                simplex_tree.insert(simplex[0], filtration=simplex[1])
-                self.simplex_tree = simplex_tree
-            self.simplex_tree_computed = True
+        for simplex in sorted_simplicial_compex:
+            simplex_tree.insert(simplex[0], filtration=simplex[1])
+            self.simplex_tree = simplex_tree
+            
+        self.simplex_tree_computed = True
 
-
-        self.simplicial_complex = simplicial_complex
-        np.fill_diagonal(landmarks_dist, 0)
-        self.landmarks_dist = landmarks_dist
-        self.metric_computed = True
 
     def get_diagram(self, show=False, path_to_save=None):
         assert self.simplex_tree_computed
@@ -352,8 +333,9 @@ class WitnessComplex():
         for num in range(1, NUMBER_OF_FRAMES + 1):
             fig = plt.figure()
             ax = fig.add_subplot(projection = "3d")
-            ax.scatter(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], linewidths=0.1)
-            ax.scatter(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], linewidths=3.5)
+            if self.witnesses.shape[0] < MAX_N_PLOT:
+                ax.scatter(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], linewidths=0.1)
+            ax.scatter(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], linewidths=3.5, color = 'C1')
             ax.set_xlabel('X, Mpc')
             ax.set_ylabel('Y, Mpc')
             ax.set_zlabel('Z, Mpc')
@@ -378,5 +360,16 @@ class WitnessComplex():
             if path_to_save is not None:
                 plt.savefig(path_to_save + f"/picture#{num}.png", dpi = 200)
             plt.show()
+            
+            
+    def tomato(self):
+        '''
+        Tomato clustering (experimental)
+        '''
+        t = Tomato()
+        t.fit(self.witnesses)
+        return t
+        
+        
             
     

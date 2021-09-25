@@ -12,6 +12,7 @@ import time
 import os
 import readline   
 import torch
+import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from galaxywitness.witness_complex import WitnessComplex
@@ -27,14 +28,21 @@ n_gal = int(input("Enter number of galaxies: "))
 n_landmarks = int(input("Enter number of landmarks: "))
 n_jobs = int(input("Enter number of processes: "))
 
-key = input("Do you want compute only zeroth \u2119\u210d? [y/n]: ")
+key = input("Do you want compute only zeroth \033[01;32m\u2119\u210d\033[0m? [y/n]: ")
 key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
 key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
 key_adv = input("Advanced configuration? [y/n]: ")
-r_max = None
-path = os.path.abspath('.') + '/data/result_glist_s.csv' 
+r_max = 100
+first_witness = 0
+tomato_key = 'n'
+path = os.path.abspath('.') + '/data/result_glist_s.csv'
+column_names = ['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']
+isomap_eps = 0 
 if(key_adv) == 'y':
-    r_max = int(input("Enter max value of filtration: "))
+    r_max = int(input("Enter max value of filtration [-1 for None]: "))
+    if r_max == -1:
+        r_max = None
+    
     data_tables = os.walk('./data')
     print("\n\t---------- data -----------")
     for _, _, elem in data_tables:
@@ -42,17 +50,19 @@ if(key_adv) == 'y':
             print(f"\t{elem.index(name)+1} <- {name}")
     print("\t---------------------------\n")
     table_num = int(input(f"Enter number of your table [1-{len(elem)}]: "))
-    path = os.path.abspath('.') + '/data/' +  elem[table_num - 1] 
+    path = os.path.abspath('.') + '/data/' +  elem[table_num - 1]
+    isomap_eps = float(input("Enter\033[01;32m isomap\033[0m parameter [0 - don't compute isomap metric]: "))
+    tomato_key = input("Do you want run\033[01;32m tomato\033[0m clustering? [y/n]: ") 
     #cosmology = input("Enter cosmology model: ")
 
+path_to_save = None
 time_list = list(time.localtime())
 time_str = ''
-for i in range(0, 6):
+for i in range(6):
     time_str += str(time_list[i]) 
-path_to_save = None
 
 if key_save == 'y':
-    path_to_save = os.path.abspath('.') + '/imgs/' + time_str
+    path_to_save = os.path.abspath('.') + '/imgs/' + time_str + f"-{n_gal}-{n_landmarks}"
     if(not os.path.isdir('imgs')):
         os.mkdir('imgs')
     os.mkdir(path_to_save)
@@ -65,20 +75,36 @@ t = time.time()
 df = pd.read_csv(path)
 t = time.time() - t
 
-print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{df['z_gal'].size}\033[0m galaxies")
+print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{df[column_names[2]].size}\033[0m galaxies")
 
 print("\n#########################################################################################\n")
-print("Preprocessing data and plot the point cloud...")
+if(key_adv) == 'y':
+    first_witness = int(input(f"Enter index of first witness [0-{df[column_names[2]].size-n_gal}]: "))
+    list_names = list(df)
+    print("\n\t---------- column names -----------")
+    for elem in list_names:
+        if list_names.index(elem) != 0:
+            print(f"\t{list_names.index(elem)} <- {elem}")
+    print("\t-----------------------------------\n")
+    column_nums = []
+    for i in range(3):
+        column_nums.append(int(input(f"Choose number of column #{i+1} of 3, from list above (column names): "))) 
+    column_names = [list(df)[column_nums[0]], list(df)[column_nums[1]], list(df)[column_nums[2]]]
+     
+print("\nPreprocessing data and plot the point cloud...")
 t = time.time()
-witnesses = torch.tensor(df[['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']].values[:n_gal])
+witnesses = torch.tensor(df[column_names].values[first_witness:n_gal + first_witness])
 coord = SkyCoord(ra = witnesses[:, 0]*u.degree, dec = witnesses[:, 1]*u.degree, distance = Distance(z = witnesses[:, 2]))
 witnesses = (torch.tensor(coord.cartesian.xyz)).transpose(0,1)
 
 landmarks = torch.zeros(n_landmarks, 3)
 landmarks_factor = int(n_gal/n_landmarks)
+landmarks_idxs = np.zeros(n_landmarks, dtype = int)
 
-for i, j in zip(range(0, n_gal, landmarks_factor), range(0, n_landmarks)): 
+for i, j in zip(range(0, n_gal, landmarks_factor), range(n_landmarks)): 
         landmarks[j, :] = witnesses[i, :]
+        landmarks_idxs[j] = i
+        
 t = time.time() - t
 print(f"Preprocessing done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.")
 # plot point cloud
@@ -100,11 +126,12 @@ plt.show()
 print("\n#########################################################################################\n")
 print("Compute persistence with witness complex and draw persitence diagram, barcode...")
 
-wc = WitnessComplex(landmarks, witnesses)
-
 t = time.time()
+
+wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, isomap_eps = isomap_eps)
+
 if key == 'n':
-    wc.compute_simplicial_complex(d_max = 2, create_metric = False, r_max = r_max, create_simplex_tree = True,  n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension())  
+    wc.compute_simplicial_complex(d_max = 2, r_max = r_max,  n_jobs = n_jobs)#simplex_tree = wc.simplex_tree print(simplex_tree.dimension())  
     
 if key == 'y':
     t = time.time()
@@ -119,6 +146,21 @@ if key_anim == 'y':
 wc.get_diagram(show = True, path_to_save = path_to_save) 
 wc.get_barcode(show = True, path_to_save = path_to_save)
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+
+if tomato_key == 'y':
+    t = time.time()
+    tomato = wc.tomato()
+    t = time.time() - t
+    
+    tomato.plot_diagram()
+    fig = plt.figure()
+    ax = fig.add_subplot(projection = "3d")
+    ax.scatter(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], c = tomato.labels_)
+    ax.set_title("Tomato clustering")
+    if path_to_save is not None:
+        plt.savefig(path_to_save + f"/tomato.png", dpi = 200)
+    plt.show()
+    print(f"\U0001F345 done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 #print(wc.landmarks_dist, end="\n#####\n")
 
 

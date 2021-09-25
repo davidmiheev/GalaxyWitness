@@ -1,4 +1,6 @@
 # GalaxyWitness
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
+
 Package for topological analysis of galactic clusters with witness complex construction. Based on GUDHI and Simon Schoenenberger's witnesscomplex
 
 ## Requirements
