@@ -22,7 +22,7 @@ from sklearn.metrics import pairwise_distances
 
 # hard-coded
 #MAX_DIST_INIT = 100000
-MAX_N_PLOT = 3000
+MAX_N_PLOT = 5000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
@@ -333,9 +333,9 @@ class WitnessComplex():
         for num in range(1, NUMBER_OF_FRAMES + 1):
             fig = plt.figure()
             ax = fig.add_subplot(projection = "3d")
-            if self.witnesses.shape[0] < MAX_N_PLOT:
-                ax.scatter(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], linewidths=0.1)
-            ax.scatter(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], linewidths=3.5, color = 'C1')
+            if self.witnesses.shape[0] <= MAX_N_PLOT:
+                ax.scatter3D(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], s = 3, linewidths = 0.1)
+            ax.scatter3D(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], s = 6, linewidths = 3, color = 'C1')
             ax.set_xlabel('X, Mpc')
             ax.set_ylabel('Y, Mpc')
             ax.set_zlabel('Z, Mpc')

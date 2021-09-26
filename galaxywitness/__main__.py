@@ -112,8 +112,8 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
 
-ax.scatter(witnesses[:MAX_N_PLOT, 0], witnesses[:MAX_N_PLOT, 1], witnesses[:MAX_N_PLOT, 2], linewidths=0.1)
-ax.scatter(landmarks[:MAX_N_PLOT, 0], landmarks[:MAX_N_PLOT, 1], landmarks[:MAX_N_PLOT, 2], linewidths=3.5)
+ax.scatter3D(witnesses[:MAX_N_PLOT, 0], witnesses[:MAX_N_PLOT, 1], witnesses[:MAX_N_PLOT, 2], s = 3, linewidths = 0.1)
+ax.scatter3D(landmarks[:MAX_N_PLOT, 0], landmarks[:MAX_N_PLOT, 1], landmarks[:MAX_N_PLOT, 2], s = 6, linewidths = 3)
 ax.set_xlabel('X, Mpc')
 ax.set_ylabel('Y, Mpc')
 ax.set_zlabel('Z, Mpc')
@@ -153,9 +153,10 @@ if tomato_key == 'y':
     t = time.time() - t
     
     tomato.plot_diagram()
+    tomato.n_clusters_ = int(input("Choose number of clusters: "))
     fig = plt.figure()
     ax = fig.add_subplot(projection = "3d")
-    ax.scatter(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], c = tomato.labels_)
+    ax.scatter3D(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], s = 3, c = tomato.labels_)
     ax.set_title("Tomato clustering")
     if path_to_save is not None:
         plt.savefig(path_to_save + f"/tomato.png", dpi = 200)
