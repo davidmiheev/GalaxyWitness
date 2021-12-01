@@ -75,11 +75,12 @@ t = time.time()
 df = pd.read_csv(path)
 t = time.time() - t
 
-print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{df[column_names[2]].size}\033[0m galaxies")
+print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{len(df)}\033[0m galaxies")
 
 print("\n#########################################################################################\n")
 if(key_adv) == 'y':
-    first_witness = int(input(f"Enter index of first witness [0-{df[column_names[2]].size-n_gal}]: "))
+    print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
+    
     list_names = list(df)
     print("\n\t---------- column names -----------")
     for elem in list_names:
@@ -90,7 +91,7 @@ if(key_adv) == 'y':
     for i in range(3):
         column_nums.append(int(input(f"Choose number of column #{i+1} of 3, from list above (column names): "))) 
     column_names = [list(df)[column_nums[0]], list(df)[column_nums[1]], list(df)[column_nums[2]]]
-     
+    first_witness = int(input(f"Enter index of first witness [0-{df[column_names[2]].size-n_gal}]: "))
 print("\nPreprocessing data and plot the point cloud...")
 t = time.time()
 witnesses = torch.tensor(df[column_names].values[first_witness:n_gal + first_witness])
@@ -145,6 +146,8 @@ if key_anim == 'y':
     
 wc.get_diagram(show = True, path_to_save = path_to_save) 
 wc.get_barcode(show = True, path_to_save = path_to_save)
+betti = wc.get_persistence()
+print(f"Persistence betti numbers: \n \033[01;32m{betti}\033[0m\n")
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 
 if tomato_key == 'y':

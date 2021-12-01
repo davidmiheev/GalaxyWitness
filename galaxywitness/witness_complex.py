@@ -317,6 +317,10 @@ class WitnessComplex():
         if show:
             plt.show()
         plt.close()
+        
+    def get_persistence(self, dim=0, from_value=0, to_value=50):
+        assert self.simplex_tree_computed
+        return self.simplex_tree.persistent_betti_numbers(from_value, to_value)
 
     def check_distance_matrix(self):
         assert self.metric_computed
