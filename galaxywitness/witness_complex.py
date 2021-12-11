@@ -1,9 +1,13 @@
 import math
 import os
+import time
+
+#import multiprocessing as mp
+from joblib import Parallel, delayed
+from joblib import dump, load
+
 
 import numpy as np
-import multiprocessing as mp
-
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
@@ -149,11 +153,11 @@ class WitnessComplex():
         
     #########################################################################################
 
-    def _update_register_simplex(self, simplicial_complex_temp, i_add, i_dist, max_dim=math.inf):
+    def _update_register_simplex(self, simplicial_complex_temp, i_add, i_dist):
         simplex_add = []
         for e in simplicial_complex_temp:
             element = e[0]
-            if (element[0] != i_add and len(element) == 1) or (1 < len(element) < max_dim+1):
+            if (element[0] != i_add and len(element) == 1) or (1 < len(element) < 2):
                 element_copy = element.copy()
                 element_copy.append(i_add)
                 simplex_add.append([element_copy, i_dist])
@@ -191,35 +195,43 @@ class WitnessComplex():
             for i in range(len(sorted_row)):
                 simplices_temp.append([[sorted_row[i][0]], sorted_row[i][1]])
                 simplex_add = self._update_register_simplex(simplices_temp.copy(), sorted_row[i][0],
-                                                            sorted_row[i][1], d_max)
+                                                            sorted_row[i][1])
                 
                 simplices_temp += simplex_add
 
             simplicial_complex += simplices_temp
 
             #self.simplicial_complex = simplicial_complex
+        #print(simplicial_complex)
         sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
 
         for simplex in sorted_simplicial_compex:
             simplex_tree.insert(simplex[0], filtration=simplex[1])
             self.simplex_tree = simplex_tree
         
+        #t = time.time()    
+        self.simplex_tree.expansion(d_max)
+        #t = time.time() - t
+        #print(t)
         self.simplex_tree_computed = True
 
     def compute_simplicial_complex_parallel(self, d_max=math.inf, r_max=math.inf, n_jobs=-1):
+        #global process_wc
+        #@delayed
+        #@wrap_non_picklable_objects
         
-        global process_wc
+        
 
-        def process_wc(distances, r_max=r_max, d_max=d_max):
+        def process_wc(distances, ind, r_max=r_max, d_max=d_max):
 
             simplicial_complex = []
 
-            def update_register_simplex(simplicial_complex, i_add, i_dist, max_dim):
+            def update_register_simplex(simplicial_complex, i_add, i_dist):
                 simplex_add = []
                 for e in simplicial_complex:
                     element = e[0]
                     if (element[0] != i_add and len(element) == 1) or (
-                            1 < len(element) < max_dim+1):
+                            1 < len(element) < 2):
                         element_copy = element.copy()
                         element_copy.append(i_add)
                         simplex_add.append([element_copy, i_dist])
@@ -228,8 +240,8 @@ class WitnessComplex():
                 return simplex_add
 
 
-            for row_i in range(distances.shape[0]):
-                row = distances[row_i, :]
+            for row_i in range(distances[ind].shape[0]):
+                row = distances[ind][row_i, :]
                 sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
                 if r_max != None:
                     sorted_row_new_temp = []
@@ -243,7 +255,7 @@ class WitnessComplex():
                     simplices_temp.append([[sorted_row[i][0]], sorted_row[i][1]])
                     simplex_add = update_register_simplex(simplices_temp.copy(),
                                                           sorted_row[i][0],
-                                                          sorted_row[i][1], d_max)
+                                                          sorted_row[i][1])
                     
                     simplices_temp += simplex_add
 
@@ -268,17 +280,26 @@ class WitnessComplex():
         if n_jobs == -1:
             n_jobs = mp.cpu_count()
 
-        if True:
-            mp.set_start_method('fork')
-            pool = mp.Pool(processes=n_jobs)
-            distances_chunk = np.array_split(self.distances, n_jobs)
+    
+            #mp.set_start_method('fork')
+            #pool = mp.Pool(processes=n_jobs)
+        distances_chunk = np.array_split(self.distances, n_jobs)
+        folder = './joblib_memmap'
+        try:
+            os.mkdir(folder)
+        except FileExistsError:
+            pass
+        data_filename_memmap = os.path.join(folder, 'distances_memmap')
+        dump(distances_chunk, data_filename_memmap)
+        data = load(data_filename_memmap, mmap_mode='r')
+        
+        results = Parallel(n_jobs=n_jobs)(delayed(process_wc)(distances=distances_chunk, ind=i) for i in range(n_jobs))
+            #pool.map(process_wc, distances_chunk)
 
-            results = pool.map(process_wc, distances_chunk)
-
-            pool.close()
-            pool.join()
-            
-            simplicial_complex = combine_results(results)
+            #pool.close()
+            #pool.join()
+        #print(results)    
+        simplicial_complex = combine_results(results)
         
             #self.simplicial_complex = simplicial_complex
         sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
@@ -287,6 +308,7 @@ class WitnessComplex():
             simplex_tree.insert(simplex[0], filtration=simplex[1])
             self.simplex_tree = simplex_tree
             
+        self.simplex_tree.expansion(d_max)    
         self.simplex_tree_computed = True
 
 

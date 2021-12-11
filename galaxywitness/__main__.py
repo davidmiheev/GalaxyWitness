@@ -32,7 +32,7 @@ key = input("Do you want compute only zeroth \033[01;32m\u2119\u210d\033[0m? [y/
 key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
 key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
 key_adv = input("Advanced configuration? [y/n]: ")
-r_max = 100
+r_max = 50
 first_witness = 0
 tomato_key = 'n'
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
@@ -140,7 +140,6 @@ if key == 'y':
     wc.compute_1d_simplex_tree(r_max = r_max)
 
 t = time.time() - t
-
 if key_anim == 'y':
     wc.animate_simplex_tree(path_to_save = path_to_save)
     
@@ -155,8 +154,9 @@ if tomato_key == 'y':
     tomato = wc.tomato()
     t = time.time() - t
     
-    tomato.plot_diagram()
-    tomato.n_clusters_ = int(input("Choose number of clusters: "))
+    #tomato.plot_diagram()
+    #tomato.n_clusters_ = int(input("Choose number of clusters: "))
+    tomato.n_clusters_ = betti[0]
     fig = plt.figure()
     ax = fig.add_subplot(projection = "3d")
     ax.scatter3D(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], s = 3, c = tomato.labels_)
