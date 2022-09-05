@@ -1,13 +1,13 @@
 # GalaxyWitness
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 
-Package for topological analysis of galactic clusters with witness complex construction. Based on GUDHI and Simon Schoenenberger's witnesscomplex
+Package for topological analysis of galactic clusters with witness complex construction. Based on GUDHI and Astropy
 
 ## Requirements
 1. Python 3.6+ and pip
 2. git
 
-Optional: OSX or Linux (for multiprocessing)
+OSX or Linux
 
 ## Installation
 You can use python virtual environment for the best experience
@@ -37,7 +37,7 @@ If you want to finish a work with package and deactivate virtual environment jus
 
     $ deacivate
 ## Uninstalling
-Full uninstalling (include dependencies and an virtual environment)
+For uninstalling (include dependencies and an virtual environment):
  
     $ rm -r GalaxyWitness
     $ rm -r galaxy-witness

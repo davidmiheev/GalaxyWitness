@@ -9,6 +9,7 @@ for str2 in open ( "galaxywitness/ansiname.txt" ):
 def section():
     print("\n#########################################################################################\n")
 
+print("\n\t\tTo Infinity... and Beyond!\n\n")
     
 ###########################################    
 
@@ -24,6 +25,7 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
+    
 
 def plot_data_cloud():
     # plot point cloud
@@ -65,14 +67,13 @@ def clustering(wc, path_to_save):
     print(f"\U0001F345 done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
     
 
-print("\n     To Infinity... and Beyond!\n\n")
+
 print("\nPreconfiguration:\n")
+#readline.set_auto_history(True)
 n_gal = int(input("Enter number of galaxies: "))
 n_landmarks = int(input("Enter number of landmarks: "))
 #n_jobs = int(input("Enter number of processes: "))
 
-key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
-key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
 key_adv = input("Advanced configuration? [y/n]: ")
 r_max = 20
 first_witness = 0
@@ -80,11 +81,17 @@ tomato_key = 'y'
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
 column_names = ['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']
 isomap_eps = 0 
+key_plot_cloud = 'y'
+key_anim = 'y'
+key_save = 'n'
 if(key_adv) == 'y':
+    key_plot_cloud = input("Do you want plot the point cloud? [y/n]: ")
+    key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
+    key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
     r_max = int(input("Enter max value of filtration [-1 for None]: "))
     if r_max == -1:
         r_max = None
-    
+    print("\nChoose file with your data [.csv file]:")
     data_tables = os.walk('./data')
     print("\n\t---------- data -----------")
     for _, _, elem in data_tables:
@@ -110,6 +117,7 @@ if key_save == 'y':
     os.mkdir(path_to_save)
 
 section()
+
 print(f"Loading data from \033[01;32m{path}\033[0m...")
 t = time.time()
 df = pd.read_csv(path)
@@ -118,15 +126,20 @@ t = time.time() - t
 print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{len(df)}\033[0m galaxies")
 
 section()
+
 if(key_adv) == 'y':
     print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
     
     list_names = list(df)
+    
+    print("\nChoose names of 3 columns for right ascension [RA], declination [Dec] and redshift [z]:")
+    
     print("\n\t---------- column names -----------")
     for elem in list_names:
         if list_names.index(elem) != 0:
             print(f"\t{list_names.index(elem)} <- {elem}")
     print("\t-----------------------------------\n")
+    
     column_nums = []
     for i in range(3):
         column_nums.append(int(input(f"Choose number of column #{i+1} of 3, from list above (column names): "))) 
@@ -155,10 +168,12 @@ t = time.time() - t
 print(f"Preprocessing done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.")
 
 section()
-print("\nTrying plot data cloud...")
-plot_data_cloud()
-print(f"Plot data cloud done \033[01;32m \u2714\033[0m")
-section()
+
+if key_plot_cloud == 'y':
+    print("\nTrying plot data cloud...")
+    plot_data_cloud()
+    print(f"Plot data cloud done \033[01;32m \u2714\033[0m")
+    section()
 
 print("Computing persistence with witness filtration...")
 
