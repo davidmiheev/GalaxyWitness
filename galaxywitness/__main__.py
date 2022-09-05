@@ -4,7 +4,7 @@ for str1 in open ( "galaxywitness/ansi.txt" ):
     print("\t\t\t" + str1, end = "")
 
 for str2 in open ( "galaxywitness/ansiname.txt" ):
-    print("\t\t" + str2, end = "")
+    print("\t\t\t" + str2, end = "")
     
 def section():
     print("\n#########################################################################################\n")
