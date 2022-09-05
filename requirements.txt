@@ -1,8 +1,5 @@
 numpy
-multiprocess
 matplotlib
-torch
-torchvision
 gudhi
 scikit-learn
 pandas

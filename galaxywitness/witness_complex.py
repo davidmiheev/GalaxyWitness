@@ -1,18 +1,15 @@
 import math
 import os
-import time
 
-#import multiprocessing as mp
 from joblib import Parallel, delayed
 from joblib import dump, load
 
-
 import numpy as np
+
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-import torch
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import floyd_warshall
 
@@ -26,7 +23,7 @@ from sklearn.metrics import pairwise_distances
 
 # hard-coded
 #MAX_DIST_INIT = 100000
-MAX_N_PLOT = 5000
+MAX_N_PLOT = 10000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
@@ -37,22 +34,24 @@ class WitnessComplex():
         'distances_isomap',
         'landmarks_idxs',
         'isomap_eps',
-        'landmarks_dist',
         'simplex_tree',
         'simplex_tree_computed',
-        'metric_computed'
+        'weights'
     ]
 
-    def __init__(self, landmarks, witnesses, landmarks_idxs, n_jobs = 1, isomap_eps = 0):
+    def __init__(self, landmarks, witnesses, landmarks_idxs, simplex_tree = 0, n_jobs = -1, isomap_eps = 0):
         #todo: implement other metrices
         self.landmarks = landmarks
         self.witnesses = witnesses
-        self.metric_computed = False
         self.simplex_tree_computed = False
         self.landmarks_idxs = landmarks_idxs
         self.isomap_eps = isomap_eps
 
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
+        if simplex_tree != 0:
+            self.simplex_tree = simplex_tree
+            self.simplex_tree_computed = True
+            
         if isomap_eps > 0:
             #distances = pairwise_distances(witnesses, n_jobs = -1)
                         
@@ -82,74 +81,7 @@ class WitnessComplex():
         else:
             self.compute_simplicial_complex_parallel(d_max=d_max, r_max=r_max, n_jobs=n_jobs)
 
-    def _compute_metric_for_one_witness(self, row):
-        sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
-            
-        landmark_dist_w = torch.ones(len(self.landmarks), len(self.landmarks))*math.inf
-        for element in sorted_row:
-            landmark_dist_w[element[0], :] = torch.ones(len(self.landmarks))*element[1]
-            landmark_dist_w[:, element[0]] = torch.ones(len(self.landmarks))*element[1]
-        return landmark_dist_w
-
-    def compute_metric_optimized(self, n_jobs=1):
-        '''
-        Computes matrix containing the filtration values for the appearance of 1-simplicies.
-        landmark_dist: n_l x n_l
-        '''
-        assert isinstance(n_jobs, int)
-
-        global _compute_metric_multiprocessing
-
-        def _compute_metric_multiprocessing(distances):
-            landmark_dist_process = torch.ones(len(self.landmarks), len(self.landmarks))*math.inf
-            for row_i in range(distances.shape[0]):
-                row = distances[row_i, :]
-                sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
-
-                landmark_dist_w = torch.ones(len(self.landmarks), len(self.landmarks))*math.inf
-                for element in sorted_row:
-                    landmark_dist_w[element[0], :] = torch.ones(len(self.landmarks))*element[1]
-                    landmark_dist_w[:, element[0]] = torch.ones(len(self.landmarks))*element[1]
-                landmark_dist_process = \
-                    torch.min(torch.stack((landmark_dist_w, landmark_dist_process)),
-                              dim=0)[0]
-            return landmark_dist_process
-
-        if n_jobs == 1:
-            landmark_dist = torch.ones(len(self.landmarks), len(self.landmarks))*math.inf
-            for row_i in range(self.distances.shape[0]):
-                row = self.distances[row_i, :]
-                landmark_dist_w = self._compute_metric_for_one_witness(row)
-                landmark_dist = \
-                    torch.min(torch.stack((landmark_dist, landmark_dist_w)),
-                              dim=0)[0]
-            self.landmarks_dist = landmark_dist
-            self.metric_computed = True
-        else:
-            if n_jobs == -1:
-                n_jobs = os.cpu_count()
-            mp.set_start_method('fork')
-            pool = mp.Pool(processes=n_jobs)
-            distances_chunk = np.array_split(self.distances, n_jobs)
-
-            results = pool.map(_compute_metric_multiprocessing, distances_chunk)
-            pool.close()
-            pool.join()
-            
-            self.landmarks_dist = torch.min(torch.stack((results)), dim=0)[0]
-            self.metric_computed = True
-
-    def compute_1d_simplex_tree(self, r_max = None):
-        assert self.metric_computed
-        simplex_tree = gudhi.SimplexTree()
-        
-        for i in range(0, len(self.landmarks)):
-            for j in range(i, len(self.landmarks)):
-                if r_max is None or float(self.landmarks_dist[i][j]) < r_max:
-                    simplex_tree.insert([i, j], float(self.landmarks_dist[i][j]))
-                
-        self.simplex_tree = simplex_tree
-        self.simplex_tree_computed = True
+    
         
     #########################################################################################
 
@@ -167,11 +99,10 @@ class WitnessComplex():
 
     def compute_simplicial_complex_single(self, d_max, r_max=None):
         '''
-        Computes simplex tree and a matrix containing the filtration values for the appearance of 1-simplicies.
+        Computes simplex tree (old code)
         d_max: max dimension of simplicies in the simplex tree
         r_max: max filtration value
         '''
-
 
         simplicial_complex = []
         try:
@@ -220,8 +151,6 @@ class WitnessComplex():
         #@delayed
         #@wrap_non_picklable_objects
         
-        
-
         def process_wc(distances, ind, r_max=r_max, d_max=d_max):
 
             simplicial_complex = []
@@ -281,8 +210,8 @@ class WitnessComplex():
             n_jobs = mp.cpu_count()
 
     
-            #mp.set_start_method('fork')
-            #pool = mp.Pool(processes=n_jobs)
+        #mp.set_start_method('fork')
+        #pool = mp.Pool(processes=n_jobs)
         distances_chunk = np.array_split(self.distances, n_jobs)
         folder = './joblib_memmap'
         try:
@@ -294,14 +223,13 @@ class WitnessComplex():
         data = load(data_filename_memmap, mmap_mode='r')
         
         results = Parallel(n_jobs=n_jobs)(delayed(process_wc)(distances=distances_chunk, ind=i) for i in range(n_jobs))
-            #pool.map(process_wc, distances_chunk)
+        #pool.map(process_wc, distances_chunk)
 
-            #pool.close()
-            #pool.join()
+        #pool.close()
+        #pool.join()
         #print(results)    
         simplicial_complex = combine_results(results)
         
-            #self.simplicial_complex = simplicial_complex
         sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
 
         for simplex in sorted_simplicial_compex:
@@ -319,7 +247,6 @@ class WitnessComplex():
         diag = self.simplex_tree.persistence()
         gudhi.plot_persistence_diagram(diag, axes=ax, legend=True)
 
-
         if path_to_save is not None:
             plt.savefig(path_to_save + '/diagram.png', dpi = 200)
         if show:
@@ -333,7 +260,6 @@ class WitnessComplex():
         diag = self.simplex_tree.persistence()
         gudhi.plot_persistence_barcode(diag, axes=ax, legend=True)
 
-
         if path_to_save is not None:
             plt.savefig(path_to_save + '/barcode.png', dpi = 200)
         if show:
@@ -342,6 +268,7 @@ class WitnessComplex():
         
     def get_persistence(self, dim=0, from_value=0, to_value=50):
         assert self.simplex_tree_computed
+        self.simplex_tree.compute_persistence()
         return self.simplex_tree.persistent_betti_numbers(from_value, to_value)
 
     def check_distance_matrix(self):
@@ -360,22 +287,46 @@ class WitnessComplex():
             fig = plt.figure()
             ax = fig.add_subplot(projection = "3d")
             if self.witnesses.shape[0] <= MAX_N_PLOT:
-                ax.scatter3D(self.witnesses[:MAX_N_PLOT, 0], self.witnesses[:MAX_N_PLOT, 1], self.witnesses[:MAX_N_PLOT, 2], s = 3, linewidths = 0.1)
-            ax.scatter3D(self.landmarks[:MAX_N_PLOT, 0], self.landmarks[:MAX_N_PLOT, 1], self.landmarks[:MAX_N_PLOT, 2], s = 6, linewidths = 3, color = 'C1')
+                ax.scatter3D(self.witnesses[:MAX_N_PLOT, 0], 
+                self.witnesses[:MAX_N_PLOT, 1], 
+                self.witnesses[:MAX_N_PLOT, 2], 
+                s = 3, 
+                linewidths = 0.1)
+            ax.scatter3D(self.landmarks[:MAX_N_PLOT, 0], 
+            self.landmarks[:MAX_N_PLOT, 1], 
+            self.landmarks[:MAX_N_PLOT, 2], 
+            s = 4, 
+            linewidths = 3, 
+            color = 'C1')
             ax.set_xlabel('X, Mpc')
             ax.set_ylabel('Y, Mpc')
             ax.set_zlabel('Z, Mpc')
             for element in l:
                 if(element[1]*scale <= num):
                     if(len(element[0]) == 2):
-                        x = [self.landmarks[element[0][0]][0], self.landmarks[element[0][1]][0]]
-                        y = [self.landmarks[element[0][0]][1], self.landmarks[element[0][1]][1]]
-                        z = [self.landmarks[element[0][0]][2], self.landmarks[element[0][1]][2]]
+                        x = [self.landmarks[element[0][0]][0], 
+                        self.landmarks[element[0][1]][0]]
+                        
+                        y = [self.landmarks[element[0][0]][1], 
+                        self.landmarks[element[0][1]][1]]
+                        
+                        z = [self.landmarks[element[0][0]][2], 
+                        self.landmarks[element[0][1]][2]]
+                        
                         ax.plot(x, y, z)
                     if(len(element[0]) == 3):
-                        x = [self.landmarks[element[0][0]][0], self.landmarks[element[0][1]][0], self.landmarks[element[0][2]][0]]
-                        y = [self.landmarks[element[0][0]][1], self.landmarks[element[0][1]][1], self.landmarks[element[0][2]][1]]
-                        z = [self.landmarks[element[0][0]][2], self.landmarks[element[0][1]][2], self.landmarks[element[0][2]][2]]
+                        x = [self.landmarks[element[0][0]][0], 
+                        self.landmarks[element[0][1]][0], 
+                        self.landmarks[element[0][2]][0]]
+                        
+                        y = [self.landmarks[element[0][0]][1], 
+                        self.landmarks[element[0][1]][1], 
+                        self.landmarks[element[0][2]][1]]
+                        
+                        z = [self.landmarks[element[0][0]][2], 
+                        self.landmarks[element[0][1]][2], 
+                        self.landmarks[element[0][2]][2]]
+                        
                         verts.append(list(zip(x, y, z)))
                         poly = Poly3DCollection(verts)
                         poly.set_color(colors.rgb2hex(np.random.rand(3)))
@@ -384,7 +335,7 @@ class WitnessComplex():
               
             ax.set_title(f"Animation of witness filtration: picture #{num} of {NUMBER_OF_FRAMES}")
             if path_to_save is not None:
-                plt.savefig(path_to_save + f"/picture#{num}.png", dpi = 200)
+                plt.savefig(path_to_save + f"/picture{num}.png", dpi = 200)
             plt.show()
             
             
