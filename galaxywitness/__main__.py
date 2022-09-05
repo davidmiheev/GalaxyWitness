@@ -32,8 +32,8 @@ def plot_data_cloud():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
-    ax.scatter3D(witnesses[:MAX_N_PLOT, 0], witnesses[:MAX_N_PLOT, 1], witnesses[:MAX_N_PLOT, 2], s = 3, linewidths = 0.1)
-    ax.scatter3D(landmarks[:MAX_N_PLOT, 0], landmarks[:MAX_N_PLOT, 1], landmarks[:MAX_N_PLOT, 2], s = 4, linewidths = 3)
+    ax.scatter3D(witnesses[:MAX_N_PLOT, 0], witnesses[:MAX_N_PLOT, 1], witnesses[:MAX_N_PLOT, 2], s = 1, linewidths = 0.1)
+    ax.scatter3D(landmarks[:MAX_N_PLOT, 0], landmarks[:MAX_N_PLOT, 1], landmarks[:MAX_N_PLOT, 2], s = 2, linewidths = 1)
     ax.set_xlabel('X, Mpc')
     ax.set_ylabel('Y, Mpc')
     ax.set_zlabel('Z, Mpc')
@@ -59,7 +59,7 @@ def clustering(wc, path_to_save):
     tomato.n_clusters_ = betti[0]
     fig = plt.figure()
     ax = fig.add_subplot(projection = "3d")
-    ax.scatter3D(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], s = 3, c = tomato.labels_)
+    ax.scatter3D(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], s = 1, c = tomato.labels_)
     ax.set_title("Tomato clustering")
     if path_to_save is not None:
         plt.savefig(path_to_save + f"/tomato.png", dpi = 200)

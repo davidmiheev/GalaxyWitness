@@ -290,13 +290,13 @@ class WitnessComplex():
                 ax.scatter3D(self.witnesses[:MAX_N_PLOT, 0], 
                 self.witnesses[:MAX_N_PLOT, 1], 
                 self.witnesses[:MAX_N_PLOT, 2], 
-                s = 3, 
+                s = 1, 
                 linewidths = 0.1)
             ax.scatter3D(self.landmarks[:MAX_N_PLOT, 0], 
             self.landmarks[:MAX_N_PLOT, 1], 
             self.landmarks[:MAX_N_PLOT, 2], 
-            s = 4, 
-            linewidths = 3, 
+            s = 2, 
+            linewidths = 1, 
             color = 'C1')
             ax.set_xlabel('X, Mpc')
             ax.set_ylabel('Y, Mpc')
