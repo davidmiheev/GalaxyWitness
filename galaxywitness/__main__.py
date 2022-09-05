@@ -181,7 +181,7 @@ t = time.time()
 
 witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
 
-simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max^2, limit_dimension=3)
+simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension=3)
 #wc.compute_simplicial_complex(d_max = 3, r_max = r_max,  n_jobs = n_jobs) ##simplex_tree = wc.simplex_tree
 #print(simplex_tree.dimension()) 
 wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, simplex_tree = simplex_tree, isomap_eps = isomap_eps)
