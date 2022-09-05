@@ -25,15 +25,13 @@ from astropy.coordinates import Distance
 from astropy import units as u
 
 
-MAX_N_PLOT = 20000
-
 def plot_data_cloud():
     # plot point cloud
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
-    ax.scatter3D(witnesses[:MAX_N_PLOT, 0], witnesses[:MAX_N_PLOT, 1], witnesses[:MAX_N_PLOT, 2], s = 1, linewidths = 0.1)
-    ax.scatter3D(landmarks[:MAX_N_PLOT, 0], landmarks[:MAX_N_PLOT, 1], landmarks[:MAX_N_PLOT, 2], s = 2, linewidths = 1)
+    ax.scatter3D(witnesses[:, 0], witnesses[:, 1], witnesses[:, 2], s = 1, linewidths = 0.1)
+    ax.scatter3D(landmarks[:, 0], landmarks[:, 1], landmarks[:, 2], s = 2, linewidths = 1)
     ax.set_xlabel('X, Mpc')
     ax.set_ylabel('Y, Mpc')
     ax.set_zlabel('Z, Mpc')
