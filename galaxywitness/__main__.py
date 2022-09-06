@@ -187,7 +187,7 @@ if key_complex_type == 'gudhi':
     simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
     wc.external_simplex_tree(simplex_tree)
 else:
-    wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = 2*r_max)
+    wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
     simplex_tree = wc.simplex_tree
     
 print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m \u2714\033[0m") 
@@ -199,7 +199,7 @@ print(f"\t\033[01;32m total number of simplices: {simplex_tree.num_simplices()}\
 if key_complex_type == 'gudhi':
     magnitude_level = (r_max**2)/2.0
 else:
-    magnitude_level = r_max
+    magnitude_level = r_max/2.0
 
 betti = wc.get_persistence_betti(dim = MAX_DIM, magnitude = magnitude_level)
 
