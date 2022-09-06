@@ -182,13 +182,14 @@ print("Computing persistence with witness filtration...")
 t = time.time()
 wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, isomap_eps = isomap_eps)
 
-if key_complex_type == 'gudhi':
+if key_complex_type == 'custom':
+    wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
+    simplex_tree = wc.simplex_tree
+else:
     witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
     simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
     wc.external_simplex_tree(simplex_tree)
-else:
-    wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
-    simplex_tree = wc.simplex_tree
+    
     
 print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m \u2714\033[0m") 
 print(f"\t\033[01;32msimplex tree stats:\n\t dim: {simplex_tree.dimension()}\033[0m")
