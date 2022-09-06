@@ -105,6 +105,25 @@ def clustering(wc, path_to_save):
 
 
 print("\nPreconfiguration:\n")
+print("\nChoose file with your data [.csv file]:")
+data_tables = os.walk('./data')
+    
+print("\n\t---------- data -----------")
+for _, _, elem in data_tables:
+    for name in elem:
+        print(f"\t{elem.index(name)+1} <- {name}")
+print("\t---------------------------\n")
+    
+table_num = int(input(f"Enter number of your table [1-{len(elem)}]: "))
+path = os.path.abspath('.') + '/data/' +  elem[table_num - 1]
+
+print(f"Loading data from \033[01;32m{path}\033[0m...")
+t = time.time()
+df = pd.read_csv(path)
+t = time.time() - t
+
+print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{len(df)}\033[0m galaxies.\n")
+
 #readline.set_auto_history(True)
 n_gal = int(input("Enter number of galaxies: "))
 n_landmarks = int(input("Enter number of landmarks: "))
@@ -134,18 +153,6 @@ if(key_adv) == 'y':
     if r_max == -1:
         r_max = None
         
-    print("\nChoose file with your data [.csv file]:")
-    data_tables = os.walk('./data')
-    
-    print("\n\t---------- data -----------")
-    for _, _, elem in data_tables:
-        for name in elem:
-            print(f"\t{elem.index(name)+1} <- {name}")
-    print("\t---------------------------\n")
-    
-    table_num = int(input(f"Enter number of your table [1-{len(elem)}]: "))
-    path = os.path.abspath('.') + '/data/' +  elem[table_num - 1]
-    
     isomap_eps = float(input("Enter\033[01;32m isomap\033[0m parameter [0 - don't compute isomap metric]: "))
      
     #cosmology = input("Enter cosmology model: ")
@@ -161,17 +168,6 @@ if key_save == 'y':
     if(not os.path.isdir('imgs')):
         os.mkdir('imgs')
     os.mkdir(path_to_save)
-
-section()
-
-print(f"Loading data from \033[01;32m{path}\033[0m...")
-t = time.time()
-df = pd.read_csv(path)
-t = time.time() - t
-
-print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{len(df)}\033[0m galaxies")
-
-section()
 
 if(key_adv) == 'y':
     print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
@@ -193,7 +189,7 @@ if(key_adv) == 'y':
     first_witness = int(input(f"Enter index of first witness [0-{df[column_names[2]].size-n_gal}]: "))
     
 section()
-print("\nPreprocessing data and plot the point cloud...")
+print("Preprocessing data and plot the point cloud...")
 
 t = time.time()
 
@@ -220,7 +216,7 @@ print(f"Preprocessing done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec
 section()
 
 if key_plot_cloud == 'y':
-    print("\nTrying plot data cloud...")
+    print("Trying plot data cloud...")
     plot_data_cloud(key_save, path_to_save)
     print(f"Plot data cloud done \033[01;32m \u2714\033[0m")
     section()
