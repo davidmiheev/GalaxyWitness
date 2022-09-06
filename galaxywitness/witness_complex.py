@@ -39,7 +39,7 @@ class WitnessComplex():
         'weights'
     ]
 
-    def __init__(self, landmarks, witnesses, landmarks_idxs, simplex_tree = 0, n_jobs = -1, isomap_eps = 0):
+    def __init__(self, landmarks, witnesses, landmarks_idxs, n_jobs = -1, isomap_eps = 0):
         #todo: implement other metrices
         self.landmarks = landmarks
         self.witnesses = witnesses
@@ -48,9 +48,6 @@ class WitnessComplex():
         self.isomap_eps = isomap_eps
 
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
-        if simplex_tree != 0:
-            self.simplex_tree = simplex_tree
-            self.simplex_tree_computed = True
             
         if isomap_eps > 0:
             #distances = pairwise_distances(witnesses, n_jobs = -1)
@@ -73,9 +70,13 @@ class WitnessComplex():
             matrix = floyd_warshall(csgraph = matrix, directed = False)
             self.distances_isomap = matrix
             _create_small_matrix(matrix)
+            
+    def external_simplex_tree(self, simplex_tree):
+        self.simplex_tree = simplex_tree
+        self.simplex_tree_computed = True
 
 
-    def compute_simplicial_complex(self, d_max, create_metric=False, r_max=None, create_simplex_tree=False, n_jobs = 1):
+    def compute_simplicial_complex(self, d_max, r_max=None, n_jobs = 1):
         if n_jobs == 1:
             self.compute_simplicial_complex_single(d_max=d_max, r_max=r_max)
         else:
@@ -238,6 +239,19 @@ class WitnessComplex():
             
         self.simplex_tree.expansion(d_max)    
         self.simplex_tree_computed = True
+        
+    #################################################################################
+        
+    def get_persistence_betti(self, dim, magnitude):
+        assert self.simplex_tree_computed
+        self.simplex_tree.compute_persistence()
+        ans = np.zeros(dim, dtype = int)
+        for j in range(dim):
+            pers = self.simplex_tree.persistence_intervals_in_dimension(j)
+            for e in pers:
+                if e[1] - e[0] > magnitude:
+                    ans[j] += 1        
+        return ans#self.simplex_tree.persistent_betti_numbers(from_value, to_value)
 
 
     def get_diagram(self, show=False, path_to_save=None):
@@ -253,6 +267,7 @@ class WitnessComplex():
             plt.show()
         plt.close()
         
+        
     def get_barcode(self, show=False, path_to_save=None):
         assert self.simplex_tree_computed
         fig, ax = plt.subplots()
@@ -265,15 +280,7 @@ class WitnessComplex():
         if show:
             plt.show()
         plt.close()
-        
-    def get_persistence(self, dim=0, from_value=0, to_value=50):
-        assert self.simplex_tree_computed
-        self.simplex_tree.compute_persistence()
-        return self.simplex_tree.persistent_betti_numbers(from_value, to_value)
 
-    def check_distance_matrix(self):
-        assert self.metric_computed
-        return not np.any(self.landmarks_dist == MAX_DIST_INIT)
         
     def animate_simplex_tree(self, path_to_save):
         assert self.simplex_tree_computed

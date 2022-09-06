@@ -25,7 +25,7 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
-    
+MAX_DIM = 3    
 
 def plot_data_cloud():
     # plot point cloud
@@ -75,7 +75,7 @@ n_landmarks = int(input("Enter number of landmarks: "))
 #n_jobs = int(input("Enter number of processes: "))
 
 key_adv = input("Advanced configuration? [y/n]: ")
-r_max = 20
+r_max = 7.5
 first_witness = 0
 tomato_key = 'y'
 path = os.path.abspath('.') + '/data/result_glist_s.csv'
@@ -84,11 +84,13 @@ isomap_eps = 0
 key_plot_cloud = 'y'
 key_anim = 'y'
 key_save = 'n'
+key_complex_type = 'gudhi'
 if(key_adv) == 'y':
     key_plot_cloud = input("Do you want plot the point cloud? [y/n]: ")
     key_anim = input("Do you want watch the animation of witness filtration? [y/n]: ")
     key_save = input("Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
-    r_max = int(input("Enter max value of filtration [-1 for None]: "))
+    key_complex_type = input("What type of simplicial complex will we use? [gudhi/custom]: ")
+    r_max = float(input("Enter max value of filtration [\033[01;32musually \u2264 15\033[0m, the more the slower calculations]: "))
     if r_max == -1:
         r_max = None
     print("\nChoose file with your data [.csv file]:")
@@ -178,18 +180,31 @@ if key_plot_cloud == 'y':
 print("Computing persistence with witness filtration...")
 
 t = time.time()
+wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, isomap_eps = isomap_eps)
 
-witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+if key_complex_type == 'gudhi':
+    witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+    simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
+    wc.external_simplex_tree(simplex_tree)
+else:
+    wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = 2*r_max)
+    simplex_tree = wc.simplex_tree
+    
+print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m \u2714\033[0m") 
+print(f"\t\033[01;32msimplex tree stats:\n\t dim: {simplex_tree.dimension()}\033[0m")
+print(f"\t\033[01;32m number of vertices (landmarks): {simplex_tree.num_vertices()}\033[0m")
+print(f"\t\033[01;32m total number of simplices: {simplex_tree.num_simplices()}\033[0m")
 
-simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension=3)
-#wc.compute_simplicial_complex(d_max = 3, r_max = r_max,  n_jobs = n_jobs) ##simplex_tree = wc.simplex_tree
-#print(simplex_tree.dimension()) 
-wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, simplex_tree = simplex_tree, isomap_eps = isomap_eps)
-  
+
+if key_complex_type == 'gudhi':
+    magnitude_level = (r_max**2)/2.0
+else:
+    magnitude_level = r_max
+
+betti = wc.get_persistence_betti(dim = MAX_DIM, magnitude = magnitude_level)
+
 t = time.time() - t
-
-betti = wc.get_persistence()
-print(f"Persistence betti numbers: \n \033[01;32m{betti}\033[0m\n")
+print(f"\t\033[01;32m persistence betti numbers: {betti}\033[0m")
 print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
 section()
 print("Drawing persistence diagram and barcode...")
