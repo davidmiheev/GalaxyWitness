@@ -4,3 +4,5 @@ gudhi
 scikit-learn
 pandas
 astropy
+plotly
+kaleido

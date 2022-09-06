@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import plotly.graph_objects as go
+import plotly.express as px
 
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import floyd_warshall
@@ -344,6 +346,75 @@ class WitnessComplex():
             if path_to_save is not None:
                 plt.savefig(path_to_save + f"/picture{num}.png", dpi = 200)
             plt.show()
+            
+    def animate_simplex_tree_plotly(self, path_to_save):
+        assert self.simplex_tree_computed
+        gen = self.simplex_tree.get_filtration()
+        
+        verts = []
+        l = list(gen)
+        scale = NUMBER_OF_FRAMES/l[-1][1]
+
+        for num in range(1, NUMBER_OF_FRAMES + 1):
+            data = []
+            if self.witnesses.shape[0] <= MAX_N_PLOT:
+                data.append(
+                go.Scatter3d(
+                x=self.witnesses[:MAX_N_PLOT, 0], 
+                y=self.witnesses[:MAX_N_PLOT, 1], 
+                z=self.witnesses[:MAX_N_PLOT, 2], 
+                mode='markers', 
+                marker=dict(size=1, color='blue'))
+                )
+            data.append(
+            go.Scatter3d(
+            x=self.landmarks[:MAX_N_PLOT, 0], 
+            y=self.landmarks[:MAX_N_PLOT, 1], 
+            z=self.landmarks[:MAX_N_PLOT, 2], 
+            mode='markers',
+            marker=dict(size=2, color='orange'))
+            )
+            
+            for element in l:
+                if(element[1]*scale <= num):
+                    if(len(element[0]) == 2):
+                        x = [self.landmarks[element[0][0]][0], 
+                        self.landmarks[element[0][1]][0]]
+                        
+                        y = [self.landmarks[element[0][0]][1], 
+                        self.landmarks[element[0][1]][1]]
+                        
+                        z = [self.landmarks[element[0][0]][2], 
+                        self.landmarks[element[0][1]][2]]
+                        
+                        data.append(go.Scatter3d(x=x, y=y, z=z, 
+                        marker = dict(size=2, color='orange'),
+                        line = dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
+                    if(len(element[0]) == 3):
+                        x = [self.landmarks[element[0][0]][0], 
+                        self.landmarks[element[0][1]][0], 
+                        self.landmarks[element[0][2]][0]]
+                        
+                        y = [self.landmarks[element[0][0]][1], 
+                        self.landmarks[element[0][1]][1], 
+                        self.landmarks[element[0][2]][1]]
+                        
+                        z = [self.landmarks[element[0][0]][2], 
+                        self.landmarks[element[0][1]][2], 
+                        self.landmarks[element[0][2]][2]]
+                        
+                        data.append(go.Mesh3d(x=x, y=y, z=z, color=colors.rgb2hex(np.random.rand(3)), opacity=0.8))
+              
+            fig = go.Figure(data=data)
+            fig.update_layout(scene = dict(
+            xaxis_title = "X, Mpc", 
+            yaxis_title = "Y, Mpc", 
+            zaxis_title = "Z, Mpc"))
+            
+            if path_to_save is not None:
+                fig.write_image(path_to_save + f"/picture{num}.pdf")
+            fig.show()
+            
             
             
     def tomato(self):
