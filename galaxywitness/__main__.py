@@ -230,7 +230,7 @@ if key_complex_type == 'custom':
     wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
     simplex_tree = wc.simplex_tree
 else:
-    witness_complex = gudhi.EuclideanWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+    witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
     simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
     wc.external_simplex_tree(simplex_tree)
     
