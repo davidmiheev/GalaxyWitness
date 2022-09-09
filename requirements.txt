@@ -6,3 +6,4 @@ pandas
 astropy
 plotly
 kaleido
+sphinx
