@@ -1,5 +1,5 @@
 Usage
 =====
 
-.. autoclass:: galaxywitness.witness_complex.WitnessComplex
+.. autoclass:: GalaxyWitness.witness_complex.WitnessComplex
 	:members:
