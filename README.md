@@ -39,7 +39,7 @@ If you want to finish a work with package and deactivate virtual environment jus
 $ deacivate
 ```
 ## Documentation
-Sphinx generates documentation for delelopers when you installing package. HTML files of documentation are in <code>docs/build/html</code> and you can open it with browser. 
+[Sphinx](https://www.sphinx-doc.org/en/master/index.html) generates documentation for delelopers when you installing package. HTML files of documentation are in <code>docs/build/html</code> and you can open it with browser. 
 If you want to build documentation yourself:
 ```sh
 $ cd docs
