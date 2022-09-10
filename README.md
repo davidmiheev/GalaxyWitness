@@ -13,31 +13,47 @@ OSX or Linux
 You can use python virtual environment for the best experience
 ### Create and activate a virtual environment
 This will create a new virtual environment called "galaxy-witness":
-
-    $ pip install virtualenv
-    $ virtualenv galaxy-witness (or python3 -m virtualenv galaxy-witness)
-    $ . ./galaxy-witness/bin/activate
-        
+```sh
+$ pip install virtualenv
+$ virtualenv galaxy-witness (or python3 -m virtualenv galaxy-witness)
+$ . ./galaxy-witness/bin/activate
+```       
 ### Installing GalaxyWitness
 This will clone the repository "GalaxyWitness" on your local machine, install dependencies and install this package 'galaxywitness':
- 
-    $ git clone https://github.com/DavidOSX/GalaxyWitness
-    $ cd GalaxyWitness
-    $ pip install -r requirements.txt
-    $ python setup.py install
- 
+```sh
+$ git clone https://github.com/DavidOSX/GalaxyWitness
+$ cd GalaxyWitness
+$ pip install -r requirements.txt
+$ python setup.py install
+```
 ## Usage
 To run just type:
-    
-    $ python -m galaxywitness
+```sh   
+$ python -m galaxywitness
+```
 
 In runtime the program will request you to enter a number of processes for parallel computation. If Unix-like operating system running on your machine, type -1 (to run <code>nproc</code> processes simultaneously). 
 
 If you want to finish a work with package and deactivate virtual environment just type:
+```sh
+$ deacivate
+```
+## Documentation
+Sphinx generates documentation for delelopers when you installing package. HTML files of documentation are in <code>docs/build/html</code> and you can open it with browser. 
+If you want to build documentation yourself:
+```sh
+$ cd docs
+$ make html
+```
+or if you want to get .pdf with documentation:
+ ```sh
+$ cd docs
+$ make latexpdf
+ ```
 
-    $ deacivate
 ## Uninstalling
 For uninstalling (include dependencies and an virtual environment):
- 
-    $ rm -r GalaxyWitness
-    $ rm -r galaxy-witness
+```sh
+$ rm -r GalaxyWitness
+$ rm -r galaxy-witness
+```
