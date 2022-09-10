@@ -1,8 +1,9 @@
+import os
 import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-
+    
 setuptools.setup(
     name='GalaxyWitness',
     version='0.2.1',
@@ -15,3 +16,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     python_requires='>=3.6',
 )
+
+print("Building documentation with \033[01;32mSphinx\033[0m...")
+os.system('sphinx-build -b html docs/source/ docs/build/html')

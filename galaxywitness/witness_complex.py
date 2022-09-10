@@ -29,6 +29,9 @@ MAX_N_PLOT = 10000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
+    '''
+    Main class for handling data about the point cloud and the simlex tree
+    '''
     __slots__ = [
         'landmarks',
         'witnesses',
@@ -42,6 +45,18 @@ class WitnessComplex():
     ]
 
     def __init__(self, landmarks, witnesses, landmarks_idxs, n_jobs = -1, isomap_eps = 0):
+        '''
+        Constuctor
+        
+        :param landmarks: set of landmarks in R^d.
+        :type landmarks: np.array n_landmarks x 3
+        :param witnesses: set of witnesses in R^d.
+        :type witnesses: np.array n_witnesses x 3
+        :param landmarks_idxs: indices of landmarks in witnesses array
+        :type landmarks_idxs: np.array[int]
+        :return: None
+        :rtype: None
+        '''
         #todo: implement other metrices
         self.landmarks = landmarks
         self.witnesses = witnesses
@@ -74,6 +89,12 @@ class WitnessComplex():
             _create_small_matrix(matrix)
             
     def external_simplex_tree(self, simplex_tree):
+        '''
+        Load external filtered simplicial complex (as simplex tree) to WitnessComplex instance
+        
+        :param simplex_tree: external simplex tree
+        :type simplex_tree: gudhi.SimplexTree
+        '''
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
 
@@ -102,9 +123,12 @@ class WitnessComplex():
 
     def compute_simplicial_complex_single(self, d_max, r_max=None):
         '''
-        Computes simplex tree (old code)
-        d_max: max dimension of simplicies in the simplex tree
-        r_max: max filtration value
+        Computes simplex tree (old code, single thread)
+        
+        :param d_max: max dimension of simplicies in the simplex tree
+        :type  d_max: int
+        :param r_max: max filtration value
+        :type  r_max: float
         '''
 
         simplicial_complex = []
@@ -150,6 +174,16 @@ class WitnessComplex():
         self.simplex_tree_computed = True
 
     def compute_simplicial_complex_parallel(self, d_max=math.inf, r_max=math.inf, n_jobs=-1):
+        '''
+        Computes simplex tree (old code, parallel computation)
+        
+        :param d_max: max dimension of simplicies in the simplex tree
+        :type  d_max: int
+        :param r_max: max filtration value
+        :type  r_max: float
+        :param n_jobs: number of threads
+        :type  n_jobs: int
+        '''
         #global process_wc
         #@delayed
         #@wrap_non_picklable_objects
@@ -245,6 +279,16 @@ class WitnessComplex():
     #################################################################################
         
     def get_persistence_betti(self, dim, magnitude):
+        """
+        Computation of persistence betti numbers
+        
+        :param dim: max dimension of betti numbers
+        :type  dim: int
+        :param magnitude: level of significance
+        :type  magnitude: float
+        :return: list of persistence betti numbers for dimensions 0...dim
+        :rtype: np.array
+        """
         assert self.simplex_tree_computed
         self.simplex_tree.compute_persistence()
         ans = np.zeros(dim, dtype = int)
@@ -257,6 +301,9 @@ class WitnessComplex():
 
 
     def get_diagram(self, show=False, path_to_save=None):
+        '''
+        Draw persistent diagram
+        '''
         assert self.simplex_tree_computed
         fig, ax = plt.subplots()
 
@@ -271,6 +318,9 @@ class WitnessComplex():
         
         
     def get_barcode(self, show=False, path_to_save=None):
+        '''
+        Draw barcode
+        '''
         assert self.simplex_tree_computed
         fig, ax = plt.subplots()
 
@@ -285,6 +335,9 @@ class WitnessComplex():
 
         
     def animate_simplex_tree(self, path_to_save):
+        '''
+        Draw animation of filtration (powered by matplotlib) 
+        '''
         assert self.simplex_tree_computed
         gen = self.simplex_tree.get_filtration()
         
@@ -348,6 +401,9 @@ class WitnessComplex():
             plt.show()
             
     def animate_simplex_tree_plotly(self, path_to_save):
+        '''
+        Draw animation of filtration (powered by plotly) 
+        '''
         assert self.simplex_tree_computed
         gen = self.simplex_tree.get_filtration()
         
