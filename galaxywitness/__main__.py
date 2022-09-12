@@ -1,3 +1,5 @@
+import os
+import time
 
 print("\n")
 for str1 in open ( "galaxywitness/ansi.txt" ):
@@ -7,14 +9,15 @@ for str2 in open ( "galaxywitness/ansiname.txt" ):
     print("\t\t\t" + str2, end = "")
     
 def section():
-    print("\n#########################################################################################\n")
+    print("\n\n")
+    
+def pause(t = 1):
+    time.sleep(t)
 
 print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")   
 ###########################################    
 
-import time 
-import os
 import readline   
 import numpy as np
 import matplotlib.pyplot as plt
@@ -74,6 +77,7 @@ def draw_diagrams_and_animation(wc, key_anim, path_to_save, key_fig):
     wc.get_barcode(show = True, path_to_save = path_to_save)
     
 def clustering(wc, betti_0, path_to_save):
+    print("ToMATo clustering...")
     t = time.time()
     tomato = wc.tomato()
     t = time.time() - t
@@ -100,11 +104,11 @@ def clustering(wc, betti_0, path_to_save):
     if path_to_save is not None:
         fig.write_image(path_to_save + "/tomato.pdf")
     fig.show()
-    print(f"\U0001F345 done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+    print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
     
 
 def preconfiguration():
-    print(f"System information: \033[01;32m{os.uname()}\033[0m")
+    print(f"\nSystem information: \033[01;32m{os.uname()}\033[0m")
     print("\nPreconfiguration:\n")
     print("\nChoose file with your data [.csv file]:")
     data_tables = os.walk('./data')
@@ -127,6 +131,8 @@ def preconfiguration():
     return df
 
 def main():
+    print("\033[FLoading... done \033[01;32m\u2714\033[0m")
+    time.sleep(1) 
     df = preconfiguration()
     #readline.set_auto_history(True)
     n_gal = int(input(" > Enter number of galaxies: "))
@@ -147,7 +153,8 @@ def main():
     if(key_adv) == 'y':
         key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
         key_anim = input(" > Do you want watch the animation of witness filtration? [y/n]: ")
-        key_fig = input(" > What graphical library will we use for the animation of witness filtration? [plotly(more slow, but more cool)/mpl(standard matplotlib)]: ")
+        if key_anim == 'y':
+            key_fig = input(" > What graphical library will we use for the animation of witness filtration? [plotly(more slow, but more cool)/mpl(standard matplotlib)]: ")
         key_save = input(" > Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
     
         key_complex_type = input(" > What type of simplicial complex will we use? [gudhi/custom]: ")
@@ -173,10 +180,11 @@ def main():
         os.mkdir(path_to_save)
 
     if(key_adv) == 'y':
+        section()
         print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
     
         list_names = list(df)
-    
+        pause()
         print("\nChoosing names of 3 columns for right ascension [RA], declination [Dec] and redshift [z]:")
     
         print("\n\t---------- column names -----------")
@@ -218,14 +226,16 @@ def main():
         
     t = time.time() - t
 
-    print(f"Preprocessing done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.")
-
+    print(f"\033[FPreprocessing data and plot the point cloud... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.")
+    
+    pause()
     section()
 
     if key_plot_cloud == 'y':
         print("Trying plot data cloud...")
         plot_data_cloud(witnesses, landmarks, key_save, path_to_save)
-        print(f"Plot data cloud done \033[01;32m \u2714\033[0m")
+        print(f"\033[FTrying plot data cloud... done \033[01;32m\u2714\033[0m")
+        pause()
         section()
 
     print("Computing persistence with witness filtration...")
@@ -240,12 +250,6 @@ def main():
         witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
         simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
         wc.external_simplex_tree(simplex_tree)
-    
-    
-    print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m \u2714\033[0m") 
-    print(f"\t\033[01;32msimplex tree stats:\n\t dim: {simplex_tree.dimension()}\033[0m")
-    print(f"\t\033[01;32m number of vertices (landmarks): {simplex_tree.num_vertices()}\033[0m")
-    print(f"\t\033[01;32m total number of simplices: {simplex_tree.num_simplices()}\033[0m")
 
 
     if key_complex_type == 'gudhi':
@@ -256,18 +260,28 @@ def main():
     betti = wc.get_persistence_betti(dim = MAX_DIM, magnitude = magnitude_level)
 
     t = time.time() - t
+    
+    print(f"\033[FComputing persistence with witness filtration... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+    pause()
+    
+    print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m\u2714\033[0m") 
+    print(f"\t\033[01;32msimplex tree stats:\n\t dim: {simplex_tree.dimension()}\033[0m")
+    print(f"\t\033[01;32m number of vertices (landmarks): {simplex_tree.num_vertices()}\033[0m")
+    print(f"\t\033[01;32m total number of simplices: {simplex_tree.num_simplices()}\033[0m")
     print(f"\t\033[01;32m persistence betti numbers: {betti}\033[0m")
-    print(f"Computation done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+    
     section()
-    print("Drawing persistence diagram and barcode...")
+    
+    print("\nDrawing persistence diagram and barcode...")
 
     draw_diagrams_and_animation(wc, key_anim, path_to_save, key_fig)
 
-    print(f"Persistence diagram and barcode done \033[01;32m \u2714\033[0m")
+    print(f"\033[F\033[F\033[FDrawing persistence diagram and barcode... done \033[01;32m \u2714\033[0m")
+    pause()
+    
     section()
 
     if tomato_key == 'y':
-        print("ToMATo clustering...")
         clustering(wc, betti[0], path_to_save)
         
     
