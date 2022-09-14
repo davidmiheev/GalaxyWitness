@@ -1,35 +1,26 @@
 import os
 import time
 
-print("\n")
-for str1 in open ( "galaxywitness/ansi.txt" ):
-    print("\t\t\t" + str1, end = "")
-
-for str2 in open ( "galaxywitness/ansiname.txt" ):
-    print("\t\t\t" + str2, end = "")
-    
-def section():
-    print("\n\n")
-    
-def pause(t = 1):
-    time.sleep(t)
-
-print("\n\t\tTo Infinity... and Beyond!\n\n")
-print("Loading...")   
-###########################################    
-
-import readline   
+import readline
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 import gudhi
-from galaxywitness.witness_complex import WitnessComplex
+
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
-MAX_DIM = 3    
+from galaxywitness.witness_complex import WitnessComplex
+
+MAX_DIM = 3
+
+def pause(t = 1):
+    time.sleep(t) 
+
+def section():
+    print("\n\n")
 
 def plot_data_cloud(witnesses, landmarks, key_save, path_to_save):
     # plot point cloud
@@ -131,8 +122,7 @@ def preconfiguration():
     return df
 
 def main():
-    print("\033[FLoading... done \033[01;32m\u2714\033[0m")
-    time.sleep(1) 
+ 
     df = preconfiguration()
     #readline.set_auto_history(True)
     n_gal = int(input(" > Enter number of galaxies: "))
@@ -286,6 +276,8 @@ def main():
         
     
 if __name__ == '__main__':
+    print("\033[FLoading... done \033[01;32m\u2714\033[0m")
+    pause()
     main()
 
 

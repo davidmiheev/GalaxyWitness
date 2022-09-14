@@ -24,4 +24,4 @@ Contents
 
 .. toctree::
 
-   usage
+   witness_complex

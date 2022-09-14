@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
-import plotly.express as px
 
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import floyd_warshall
