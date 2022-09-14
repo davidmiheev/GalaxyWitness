@@ -1,5 +1,6 @@
 
 print("\n")
+
 for str1 in open ( "galaxywitness/ansi.txt" ):
     print("\t\t\t" + str1, end = "")
 

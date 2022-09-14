@@ -28,9 +28,19 @@ MAX_N_PLOT = 10000
 NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
-    '''
-    Main class for handling data about the point cloud and the simlex tree
-    '''
+    """
+    Main class for handling data about the point cloud and the simlex tree 
+    of filtered witness complex
+    
+    :param landmarks: set of landmarks in :math:`\mathbb{R}^d`.
+    :type landmarks: np.array size of *n_landmarks x 3*
+    :param witnesses: set of witnesses in :math:`\mathbb{R}^d`.
+    :type witnesses: np.array size of *n_witnesses x 3*
+    :param landmarks_idxs: indices of landmarks in witnesses array
+    :type landmarks_idxs: np.array[int]
+
+    """
+    
     __slots__ = [
         'landmarks',
         'witnesses',
@@ -40,22 +50,15 @@ class WitnessComplex():
         'isomap_eps',
         'simplex_tree',
         'simplex_tree_computed',
-        'weights'
+        'weights',
+        'betti'
     ]
 
     def __init__(self, landmarks, witnesses, landmarks_idxs, n_jobs = -1, isomap_eps = 0):
-        '''
+        """
         Constuctor
         
-        :param landmarks: set of landmarks in R^d.
-        :type landmarks: np.array n_landmarks x 3
-        :param witnesses: set of witnesses in R^d.
-        :type witnesses: np.array n_witnesses x 3
-        :param landmarks_idxs: indices of landmarks in witnesses array
-        :type landmarks_idxs: np.array[int]
-        :return: None
-        :rtype: None
-        '''
+        """
         #todo: implement other metrices
         self.landmarks = landmarks
         self.witnesses = witnesses
@@ -88,17 +91,29 @@ class WitnessComplex():
             _create_small_matrix(matrix)
             
     def external_simplex_tree(self, simplex_tree):
-        '''
+        """
         Load external filtered simplicial complex (as simplex tree) to WitnessComplex instance
         
         :param simplex_tree: external simplex tree
         :type simplex_tree: gudhi.SimplexTree
-        '''
+        
+        """
+        
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
 
 
     def compute_simplicial_complex(self, d_max, r_max=None, n_jobs = 1):
+        """
+        Compute custom filtered simplicial complex
+        
+        :param d_max: max dimension of simplicies in the simplex tree 
+        :type d_max: int
+        :param r_max: max filtration value
+        :type  r_max: float
+        :param n_jobs: number of threads
+        :type  n_jobs: int
+        """ 
         if n_jobs == 1:
             self.compute_simplicial_complex_single(d_max=d_max, r_max=r_max)
         else:
@@ -121,14 +136,6 @@ class WitnessComplex():
         return simplex_add
 
     def compute_simplicial_complex_single(self, d_max, r_max=None):
-        '''
-        Computes simplex tree (old code, single thread)
-        
-        :param d_max: max dimension of simplicies in the simplex tree
-        :type  d_max: int
-        :param r_max: max filtration value
-        :type  r_max: float
-        '''
 
         simplicial_complex = []
         try:
@@ -173,16 +180,6 @@ class WitnessComplex():
         self.simplex_tree_computed = True
 
     def compute_simplicial_complex_parallel(self, d_max=math.inf, r_max=math.inf, n_jobs=-1):
-        '''
-        Computes simplex tree (old code, parallel computation)
-        
-        :param d_max: max dimension of simplicies in the simplex tree
-        :type  d_max: int
-        :param r_max: max filtration value
-        :type  r_max: float
-        :param n_jobs: number of threads
-        :type  n_jobs: int
-        '''
         #global process_wc
         #@delayed
         #@wrap_non_picklable_objects
@@ -295,14 +292,21 @@ class WitnessComplex():
             pers = self.simplex_tree.persistence_intervals_in_dimension(j)
             for e in pers:
                 if e[1] - e[0] > magnitude:
-                    ans[j] += 1        
+                    ans[j] += 1
+        self.betti = ans        
         return ans#self.simplex_tree.persistent_betti_numbers(from_value, to_value)
 
 
     def get_diagram(self, show=False, path_to_save=None):
-        '''
+        """
         Draw persistent diagram
-        '''
+        
+        :param show: show diagram? (Optional)
+        :type  show: bool
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str
+        """
+        
         assert self.simplex_tree_computed
         fig, ax = plt.subplots()
 
@@ -317,9 +321,16 @@ class WitnessComplex():
         
         
     def get_barcode(self, show=False, path_to_save=None):
-        '''
+        """
         Draw barcode
-        '''
+        
+        :param show: show barcode? (Optional)
+        :type  show: bool
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str
+        
+        """
+        
         assert self.simplex_tree_computed
         fig, ax = plt.subplots()
 
@@ -334,9 +345,13 @@ class WitnessComplex():
 
         
     def animate_simplex_tree(self, path_to_save):
-        '''
-        Draw animation of filtration (powered by matplotlib) 
-        '''
+        """
+        Draw animation of filtration (powered by matplotlib)
+        
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str
+         
+        """
         assert self.simplex_tree_computed
         gen = self.simplex_tree.get_filtration()
         
@@ -400,9 +415,12 @@ class WitnessComplex():
             plt.show()
             
     def animate_simplex_tree_plotly(self, path_to_save):
-        '''
-        Draw animation of filtration (powered by plotly) 
-        '''
+        """
+        Draw animation of filtration (powered by plotly)
+        
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str 
+        """
         assert self.simplex_tree_computed
         gen = self.simplex_tree.get_filtration()
         
@@ -458,7 +476,15 @@ class WitnessComplex():
                         self.landmarks[element[0][1]][2], 
                         self.landmarks[element[0][2]][2]]
                         
-                        data.append(go.Mesh3d(x=x, y=y, z=z, color=colors.rgb2hex(np.random.rand(3)), opacity=0.8))
+                        data.append(
+                                    go.Mesh3d(
+                                              x=x, 
+                                              y=y, 
+                                              z=z, 
+                                              color=colors.rgb2hex(np.random.rand(3)), 
+                                              opacity=0.8
+                                              )
+                                    )
               
             fig = go.Figure(data=data)
             fig.update_layout(scene = dict(
@@ -473,11 +499,15 @@ class WitnessComplex():
             
             
     def tomato(self):
-        '''
-        Tomato clustering (experimental)
-        '''
+        """
+        ToMATo clustering with automatic choice of number of clusters. 
+        Hence clustering depends on filtered complex construction and 
+        max value of filtration.
+        
+        """
         t = Tomato()
         t.fit(self.witnesses)
+        t.n_clusters_ = self.betti[0]
         return t
         
         

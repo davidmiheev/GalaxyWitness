@@ -1,5 +1,6 @@
 import os
 import setuptools
+import webbrowser
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -19,3 +20,7 @@ setuptools.setup(
 
 print("Building documentation with \033[01;32mSphinx\033[0m...")
 os.system('sphinx-build -b html docs/source/ docs/build/html')
+
+
+url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
+webbrowser.open(url, new=2)

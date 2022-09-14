@@ -67,15 +67,13 @@ def draw_diagrams_and_animation(wc, key_anim, path_to_save, key_fig):
     wc.get_diagram(show = True, path_to_save = path_to_save) 
     wc.get_barcode(show = True, path_to_save = path_to_save)
     
-def clustering(wc, betti_0, path_to_save):
+def clustering(wc, path_to_save):
     print("ToMATo clustering...")
     t = time.time()
     tomato = wc.tomato()
     t = time.time() - t
     
     #tomato.plot_diagram()
-    #tomato.n_clusters_ = int(input("Choose number of clusters: "))
-    tomato.n_clusters_ = betti_0
     fig = go.Figure(
           data = [go.Scatter3d(
                     x=wc.witnesses[:, 0], 
@@ -272,7 +270,7 @@ def main():
     section()
 
     if tomato_key == 'y':
-        clustering(wc, betti[0], path_to_save)
+        clustering(wc, path_to_save)
         
     
 if __name__ == '__main__':
