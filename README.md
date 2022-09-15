@@ -14,7 +14,7 @@ You can use python virtual environment for the best experience
 ### Create and activate a virtual environment
 This will create a new virtual environment called "galaxy-witness":
 ```sh
-$ pip install virtualenv
+$ pip3 install virtualenv
 $ virtualenv galaxy-witness (or python3 -m virtualenv galaxy-witness)
 $ . ./galaxy-witness/bin/activate
 ```       
@@ -36,7 +36,7 @@ In runtime the program will request you to enter a number of processes for paral
 
 If you want to finish a work with package and deactivate virtual environment just type:
 ```sh
-$ deacivate
+$ deactivate
 ```
 ## Documentation
 [Sphinx](https://www.sphinx-doc.org/en/master/index.html) generates documentation for delelopers when you installing package. HTML files of documentation are in <code>docs/build/html</code> and you can open it with browser. 
