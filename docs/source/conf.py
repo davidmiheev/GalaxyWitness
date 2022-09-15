@@ -18,7 +18,7 @@ html_logo = '_static/logo.png'
 latex_engine = 'xelatex'
 latex_elements = {
     'preamble': r'''
-\usepackage{amssymb, amsmath}
+\usepackage{amssymb, latexsym, amsmath, amsthm, mathrsfs, mathspec, mathbbol}
 '''
 }
 

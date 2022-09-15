@@ -1,5 +1,13 @@
-WitnessComplex
-==============
+Development
+===========
+
+WitnessComplex (class)
+----------------------
 
 .. autoclass:: GalaxyWitness.witness_complex.WitnessComplex
-	:members:
+	 :members:
+	
+AlphaComplex (class)
+--------------------
+
+Coming soon...
