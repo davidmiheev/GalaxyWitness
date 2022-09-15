@@ -4,10 +4,10 @@
 Package for topological analysis of galactic clusters with witness complex construction. Based on [GUDHI](https://gudhi.inria.fr) and [Astropy](https://www.astropy.org)
 
 ## Requirements
-1. Python 3.6+ and pip
-2. git
+1. Python 3.6+
+2. git (if you want clone this repo)
 
-OSX or Linux
+OS X or Linux
 
 ## Installation
 You can use python virtual environment for the best experience
