@@ -29,7 +29,7 @@ NUMBER_OF_FRAMES = 6
 
 class WitnessComplex():
     """
-    Main class for handling data about the point cloud and the simlex tree 
+    Main class for handling data about the point cloud and the simlex tree
     of filtered witness complex
     
     :param landmarks: set of landmarks in :math:`\mathbb{R}^d`.

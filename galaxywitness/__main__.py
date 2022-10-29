@@ -123,8 +123,13 @@ def main():
  
     df = preconfiguration()
     #readline.set_auto_history(True)
-    n_gal = int(input(" > Enter number of galaxies: "))
-    n_landmarks = int(input(" > Enter number of landmarks: "))
+    n_gal = int(input(f" > Enter number of galaxies [10-{len(df)}]: "))
+    type_of_complex = input(" > Enter type of complex [witness/alpha]: ")
+    if type_of_complex == "witness":
+        n_landmarks = int(input(f" > Enter number of landmarks [10-{n_gal}]: "))
+    else:
+        n_landmarks = n_gal
+            
     #n_jobs = int(input("Enter number of processes: "))
 
     key_adv = input(" > Advanced configuration? [y/n]: ")
@@ -236,7 +241,9 @@ def main():
         simplex_tree = wc.simplex_tree
     else:
         witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+        # acomplex = gudhi.AlphaComplex(points=witnesses)
         simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
+        # simplex_tree = acomplex.create_simplex_tree(max_alpha_square=r_max**2)
         wc.external_simplex_tree(simplex_tree)
 
 
