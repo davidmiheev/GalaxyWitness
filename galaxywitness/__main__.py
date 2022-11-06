@@ -1,5 +1,23 @@
+
+################# Banner ########################
+print("\n")
+try:
+    for str1 in open ( "galaxywitness/ansi.txt" ):
+        print("\t\t\t" + str1, end = "")
+
+    for str2 in open ( "galaxywitness/ansiname.txt" ):
+        print("\t\t\t" + str2, end = "")
+except:
+    print("\033[01;32mGalaxyWitness\033[0m\n")
+    print("\033[01;33mWarning: Current directory is not 'GalaxyWitness' directory! We recommend run from folder 'GalaxyWitness'\033[0m")
+        
+print("\n\t\tTo Infinity... and Beyond!\n\n")
+print("Loading...")
+#################################################
+
 import os
 import time
+import webbrowser
 
 import readline
 import numpy as np
@@ -12,7 +30,7 @@ from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
-from galaxywitness.witness_complex import WitnessComplex
+from GalaxyWitness.witness_complex import WitnessComplex
 
 MAX_DIM = 3
 
@@ -100,14 +118,16 @@ def preconfiguration():
     print(f"\nSystem information: \033[01;32m{os.uname()}\033[0m")
     print("\nPreconfiguration:\n")
     print("\nChoose file with your data [.csv file]:")
+    
     data_tables = os.walk('./data')
     
+    print(data_tables)  
     print("\n\t---------- data -----------")
     for _, _, elem in data_tables:
         for name in elem:
             print(f"\t{elem.index(name)+1} <- {name}")
     print("\t---------------------------\n")
-    
+        
     table_num = int(input(f" > Enter number of your table [1-{len(elem)}]: "))
     path = os.path.abspath('.') + '/data/' +  elem[table_num - 1]
 
@@ -121,7 +141,16 @@ def preconfiguration():
 
 def main():
  
-    df = preconfiguration()
+    try:
+        df = preconfiguration()
+    except: 
+        raise Exception("\033[01;31mFolder 'data' is not exist or empty!\033[0m")
+       
+    doc_key = input(" > Do you want to open documentation? [y/n]: ")
+    if doc_key == 'y':
+        url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
+        webbrowser.open(url, new=2)
+        
     #readline.set_auto_history(True)
     n_gal = int(input(f" > Enter number of galaxies [10-{len(df)}]: "))
     type_of_complex = input(" > Enter type of complex [witness/alpha]: ")
@@ -240,11 +269,14 @@ def main():
         wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
         simplex_tree = wc.simplex_tree
     else:
-        witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
-        # acomplex = gudhi.AlphaComplex(points=witnesses)
-        simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
-        # simplex_tree = acomplex.create_simplex_tree(max_alpha_square=r_max**2)
-        wc.external_simplex_tree(simplex_tree)
+        if type_of_complex == "witness":
+            witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+            simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
+        else:
+            acomplex = gudhi.AlphaComplex(points=witnesses)
+            simplex_tree = acomplex.create_simplex_tree(max_alpha_square=r_max**2)
+            
+        wc.external_simplex_tree(simplex_tree) # TODO: make separate class for alpha (filtered) complex
 
 
     if key_complex_type == 'gudhi':

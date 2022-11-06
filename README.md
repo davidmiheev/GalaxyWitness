@@ -5,7 +5,7 @@
 Package for topological analysis of galactic clusters with witness complex construction. Based on [GUDHI](https://gudhi.inria.fr) and [Astropy](https://www.astropy.org)
 
 ## Requirements
-1. Python 3.6+
+1. Python 3.6+ and pip
 2. git (if you want clone this repo)
 
 OS X or Linux
@@ -30,10 +30,10 @@ $ python setup.py install
 ## Usage
 To run just type:
 ```sh   
-$ python -m galaxywitness
+$ python -m GalaxyWitness
 ```
 
-In runtime the program will request you to enter a number of processes for parallel computation. If Unix-like operating system running on your machine, type -1 (to run <code>nproc</code> processes simultaneously). 
+In runtime the program will request you to choose file with your data. This file have to be in folder ```./data```
 
 If you want to finish a work with package and deactivate virtual environment just type:
 ```sh

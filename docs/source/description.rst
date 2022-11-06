@@ -12,13 +12,13 @@ The witness complex :math:`\mathrm{Wit}(L,W)` (a "discrete" analogue of the Dela
 * :math:`W` - the set of witnesses
 
 We will also assume that :math:`L\subseteq W`. The vertices of :math:`\mathrm{Wit}(L,W)` are the set :math:`L`.
-The complex :math:`\mathrm{Wit}(L,W)` is a flag simplicial complex consisting of all simplices :math:`\tau` such that the following condition holds for any simplex :math:`\sigma\subseteq\tau`:
+The complex :math:`\mathrm{Wit}(L,W)` (strong version) is a flag simplicial complex consisting of all simplices :math:`\tau` such that the following condition holds for any simplex :math:`\sigma\subseteq\tau`:
 
 .. math::
 
    \exists w: \quad\|w-p\| \leq\|w-q\|\quad\forall p\in \sigma\text { and } \forall q\in L
 	 
-Now we similarly introduce the complex :math:`\mathrm{Wit}^{\alpha}(L,W)`, defined by the condition:
+Now we similarly introduce (:math:`\alpha`-relaxed) complex :math:`\mathrm{Wit}^{\alpha}(L,W)`, defined by the condition:
 
 .. math::
 

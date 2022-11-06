@@ -1,5 +1,4 @@
 import os
-import webbrowser
 import setuptools
 
 
@@ -9,8 +8,9 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='GalaxyWitness',
     version='0.2.1',
+    license='MIT',
     author='David Miheev',
-    author_email='-',
+    author_email='me@davidkorol.life',
     packages=['GalaxyWitness'],
     url='https://github.com/DavidOSX/GalaxyWitness',
     description='Package for topological analysis of galactic clusters with witness complex construction.',
@@ -19,9 +19,7 @@ setuptools.setup(
     python_requires='>=3.6',
 )
 
-print("Building documentation with \033[01;32mSphinx\033[0m...")
+print("\nBuilding documentation with \033[01;32mSphinx\033[0m...")
 os.system('sphinx-build -b html docs/source/ docs/build/html')
 
 
-url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
-webbrowser.open(url, new=2)
