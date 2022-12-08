@@ -2,15 +2,15 @@
 ################# Banner ########################
 print("\n")
 try:
-    for str1 in open ( "galaxywitness/ansi.txt" ):
+    for str1 in open ( "{GalaxyWitness.__path__}/galaxywitness/ansi.txt" ):
         print("\t\t\t" + str1, end = "")
 
-    for str2 in open ( "galaxywitness/ansiname.txt" ):
+    for str2 in open ( "{GalaxyWitness.__path__}/galaxywitness/ansiname.txt" ):
         print("\t\t\t" + str2, end = "")
 except:
     print("\033[01;32mGalaxyWitness\033[0m\n")
-    print("\033[01;33mWarning: Current directory is not 'GalaxyWitness' directory! We recommend run from folder 'GalaxyWitness'\033[0m")
-        
+    print("\033[01;33mWarning: Can't load the banner!'\033[0m")
+
 print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")
 #################################################
