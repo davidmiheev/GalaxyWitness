@@ -2,7 +2,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 
 
-Package for topological analysis of galactic clusters with witness complex construction. Based on [GUDHI](https://gudhi.inria.fr) and [Astropy](https://www.astropy.org)
+Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA. Based on [GUDHI](https://gudhi.inria.fr) and [Astropy](https://www.astropy.org)
 
 ## Requirements
 1. Python 3.6+ and pip
