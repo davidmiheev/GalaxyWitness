@@ -2,10 +2,10 @@
 ################# Banner ########################
 print("\n")
 try:
-    for str1 in open ( "{GalaxyWitness.__path__}/galaxywitness/ansi.txt" ):
+    for str1 in open ( "GalaxyWitness/ansi.txt" ):
         print("\t\t\t" + str1, end = "")
 
-    for str2 in open ( "{GalaxyWitness.__path__}/galaxywitness/ansiname.txt" ):
+    for str2 in open ( "GalaxyWitness/ansiname.txt" ):
         print("\t\t\t" + str2, end = "")
 except:
     print("\033[01;32mGalaxyWitness\033[0m\n")
