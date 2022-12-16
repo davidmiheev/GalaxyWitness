@@ -1,3 +1,5 @@
+import os
+import time
 
 ################# Banner ########################
 print("\n")
@@ -7,18 +9,15 @@ try:
 
     for str2 in open ( "GalaxyWitness/ansiname.txt" ):
         print("\t\t\t" + str2, end = "")
-except:
+except Exception:
     print("\033[01;32mGalaxyWitness\033[0m\n")
-    print("\033[01;33mWarning: Can't load the banner!'\033[0m")
+    print("\033[01;33mWarning: Can't load the banner!\033[0m")
 
 print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")
 #################################################
 
-import os
-import time
 import webbrowser
-
 import readline
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,76 +41,60 @@ def section():
 
 def plot_data_cloud(witnesses, landmarks, key_save, path_to_save):
     # plot point cloud
-    fig = go.Figure(
-    data = [go.Scatter3d(
-            x=witnesses[:, 0],
-            y=witnesses[:, 1], 
-            z=witnesses[:, 2], 
-            mode='markers', 
-            marker=dict(
-                    size=1,
-                    color='blue',         
-                    )
-            ), 
-            go.Scatter3d(
-            x=landmarks[:, 0], 
-            y=landmarks[:, 1], 
-            z=landmarks[:, 2], 
-            mode='markers', 
-            marker=dict(
-                    size=2,
-                    color='orange', 
-                    )
-            )
-        ]
-    )
-    fig.update_layout(scene = dict(
-    xaxis_title='X, Mpc', 
-    yaxis_title='Y, Mpc', 
-    zaxis_title='Z, Mpc'))
-    
+    fig = go.Figure(data = [go.Scatter3d(x=witnesses[:, 0],
+                                        y=witnesses[:, 1], 
+                                        z=witnesses[:, 2], 
+                                        mode='markers', 
+                                        marker=dict(size=1, color='blue')), 
+                            go.Scatter3d(x=landmarks[:, 0], 
+                                        y=landmarks[:, 1], 
+                                        z=landmarks[:, 2], 
+                                        mode='markers', 
+                                        marker=dict(size=2, color='orange'))])
+                                        
+    fig.update_layout(scene = dict(xaxis_title='X, Mpc', 
+                                   yaxis_title='Y, Mpc', 
+                                   zaxis_title='Z, Mpc'))
     
     if key_save == 'y':
         fig.write_image(path_to_save + '/plot_data_cloud.pdf')
+        
     fig.show()
 
-def draw_diagrams_and_animation(wc, key_anim, path_to_save, key_fig):
+def draw_diagrams_and_animation(fil_complex, key_anim, path_to_save, key_fig):
     if key_anim == 'y':
         if key_fig == 'plotly':
-            wc.animate_simplex_tree_plotly(path_to_save = path_to_save)
+            fil_complex.animate_simplex_tree_plotly(path_to_save = path_to_save)
         else:
-            wc.animate_simplex_tree(path_to_save = path_to_save)
+            fil_complex.animate_simplex_tree(path_to_save = path_to_save)
     
-    wc.get_diagram(show = True, path_to_save = path_to_save) 
-    wc.get_barcode(show = True, path_to_save = path_to_save)
+    fil_complex.get_diagram(show = True, path_to_save = path_to_save) 
+    fil_complex.get_barcode(show = True, path_to_save = path_to_save)
     
-def clustering(wc, path_to_save):
+def clustering(fil_complex, path_to_save):
     print("ToMATo clustering...")
     t = time.time()
-    tomato = wc.tomato()
+    tomato = fil_complex.tomato()
     t = time.time() - t
     
     #tomato.plot_diagram()
-    fig = go.Figure(
-          data = [go.Scatter3d(
-                    x=wc.witnesses[:, 0], 
-                    y=wc.witnesses[:, 1], 
-                    z=wc.witnesses[:, 2], 
-                    mode='markers', 
-                    marker = dict(
-                             size=1,
-                             color=tomato.labels_,         
-                    ))]
-          )
-    fig.update_layout(scene = dict(
-    xaxis_title = "X, Mpc", 
-    yaxis_title = "Y, Mpc", 
-    zaxis_title = "Z, Mpc"))
+    fig = go.Figure(data = [go.Scatter3d(x=fil_complex.witnesses[:, 0], 
+                                         y=fil_complex.witnesses[:, 1], 
+                                         z=fil_complex.witnesses[:, 2], 
+                                         mode='markers', 
+                                         marker = dict(size=1, color=tomato.labels_))])
+                                         
+    fig.update_layout(scene = dict(xaxis_title = "X, Mpc", 
+                                   yaxis_title = "Y, Mpc", 
+                                   zaxis_title = "Z, Mpc"))
 
     if path_to_save is not None:
         fig.write_image(path_to_save + "/tomato.pdf")
+        
     fig.show()
-    print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+    
+    print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m\
+    in \033[01;32m{t}\033[0m sec.\n")
     
 
 def preconfiguration():
@@ -129,22 +112,24 @@ def preconfiguration():
     print("\t---------------------------\n")
         
     table_num = int(input(f" > Enter number of your table [1-{len(elem)}]: "))
-    path = os.path.abspath('.') + '/data/' +  elem[table_num - 1]
+    path = os.path.abspath('.') + '/data/' + elem[table_num - 1]
 
     print(f"Loading data from \033[01;32m{path}\033[0m...")
     t = time.time()
     df = pd.read_csv(path)
     t = time.time() - t
 
-    print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec. We have data about \033[01;32m{len(df)}\033[0m galaxies.\n")
+    print(f"Loading done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\
+    We have data about \033[01;32m{len(df)}\033[0m galaxies.\n")
+    
     return df
 
 def main():
  
     try:
         df = preconfiguration()
-    except: 
-        raise Exception("\033[01;31mFolder 'data' is not exist or empty!\033[0m")
+    except ValueError: 
+        raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m")
        
     doc_key = input(" > Do you want to open documentation? [y/n]: ")
     if doc_key == 'y':
@@ -153,7 +138,9 @@ def main():
         
     #readline.set_auto_history(True)
     n_gal = int(input(f" > Enter number of galaxies [10-{len(df)}]: "))
+    
     type_of_complex = input(" > Enter type of complex [witness/alpha]: ")
+    
     if type_of_complex == "witness":
         n_landmarks = int(input(f" > Enter number of landmarks [10-{n_gal}]: "))
     else:
@@ -176,11 +163,11 @@ def main():
         key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
         key_anim = input(" > Do you want watch the animation of witness filtration? [y/n]: ")
         if key_anim == 'y':
-            key_fig = input(" > What graphical library will we use for the animation of witness filtration? [plotly(more slow, but more cool)/mpl(standard matplotlib)]: ")
+            key_fig = input(" > What will we use for the animation of a filtered complex? [plotly(more slow, but more cool)/mpl(matplotlib)]: ")
         key_save = input(" > Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
     
         key_complex_type = input(" > What type of simplicial complex will we use? [gudhi/custom]: ")
-        r_max = float(input(" > Enter max value of filtration [\033[01;32musually \u2264 15\033[0m, the more the slower calculations]: "))
+        r_max = float(input(" > Enter max value of filtration[\033[01;32m usually \u2264 15\033[0m, the more the slower calculate]: "))
         tomato_key = input(" > Do you want run\033[01;32m tomato\033[0m clustering? [y/n]: ")
         if r_max == -1:
             r_max = None
@@ -231,11 +218,13 @@ def main():
     t = time.time()
 
     witnesses = np.array(df[column_names].values[first_witness:n_gal + first_witness])
+    
     coord = SkyCoord(
                     ra = witnesses[:, 0]*u.degree, 
                     dec = witnesses[:, 1]*u.degree, 
                     distance = Distance(z = witnesses[:, 2])
                     )
+                    
     witnesses = np.transpose(np.array(coord.cartesian.xyz), (1, 0))
 
     landmarks = np.zeros((n_landmarks, 3))
@@ -263,28 +252,28 @@ def main():
     print("Computing persistence with witness filtration...")
 
     t = time.time()
-    wc = WitnessComplex(landmarks, witnesses, landmarks_idxs, isomap_eps = isomap_eps)
+    witness_complex = WitnessComplex(landmarks, witnesses, landmarks_idxs, isomap_eps = isomap_eps)
 
     if key_complex_type == 'custom':
-        wc.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
-        simplex_tree = wc.simplex_tree
+        witness_complex.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max, custom=True)
     else:
         if type_of_complex == "witness":
-            witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
-            simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
+            witness_complex.compute_simplicial_complex(d_max = MAX_DIM, r_max = r_max)
+            # witness_complex = gudhi.EuclideanStrongWitnessComplex(witnesses=witnesses, landmarks=landmarks)
+            # simplex_tree = witness_complex.create_simplex_tree(max_alpha_square=r_max**2, limit_dimension = MAX_DIM)
         else:
             acomplex = gudhi.AlphaComplex(points=witnesses)
             simplex_tree = acomplex.create_simplex_tree(max_alpha_square=r_max**2)
+            witness_complex.external_simplex_tree(simplex_tree) # TODO: make separate class for alpha (filtered) complex
             
-        wc.external_simplex_tree(simplex_tree) # TODO: make separate class for alpha (filtered) complex
-
-
     if key_complex_type == 'gudhi':
         magnitude_level = (r_max**2)/2.0
     else:
         magnitude_level = r_max/2.0
+        
+    simplex_tree = witness_complex.simplex_tree
 
-    betti = wc.get_persistence_betti(dim = MAX_DIM, magnitude = magnitude_level)
+    betti = witness_complex.get_persistence_betti(dim = MAX_DIM, magnitude = magnitude_level)
 
     t = time.time() - t
     
@@ -301,7 +290,7 @@ def main():
     
     print("\nDrawing persistence diagram and barcode...")
 
-    draw_diagrams_and_animation(wc, key_anim, path_to_save, key_fig)
+    draw_diagrams_and_animation(witness_complex, key_anim, path_to_save, key_fig)
 
     print(f"\033[F\033[F\033[FDrawing persistence diagram and barcode... done \033[01;32m \u2714\033[0m")
     pause()
@@ -309,7 +298,7 @@ def main():
     section()
 
     if tomato_key == 'y':
-        clustering(wc, path_to_save)
+        clustering(witness_complex, path_to_save)
         
     
 if __name__ == '__main__':

@@ -18,7 +18,6 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     python_requires='>=3.8',
     include_package_data=True,
-    #package_data={'': ['data/*.csv', 'galaxywitness/*.txt']},
 )
 
 print("\nBuilding documentation with \033[01;32mSphinx\033[0m...")
