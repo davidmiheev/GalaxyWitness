@@ -3,6 +3,7 @@ import os
 
 from joblib import Parallel, delayed
 from joblib import dump, load
+import multiprocessing as mp
 
 import numpy as np
 
@@ -133,7 +134,7 @@ class WitnessComplex():
         simplex_add = []
         for e in simplicial_complex_temp:
             element = e[0]
-            if (element[0] != i_add and len(element) == 1) or (1 < len(element) < 2):
+            if element[0] != i_add and len(element) == 1:
                 element_copy = element.copy()
                 element_copy.append(i_add)
                 simplex_add.append([element_copy, i_dist])
@@ -171,9 +172,9 @@ class WitnessComplex():
 
             #self.simplicial_complex = simplicial_complex
         
-        sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
+        sorted_simplicial_complex = sorted(simplicial_complex, key=lambda x: x[1])
 
-        for simplex in sorted_simplicial_compex:
+        for simplex in sorted_simplicial_complex:
             simplex_tree.insert(simplex[0], filtration=simplex[1])
             self.simplex_tree = simplex_tree
         
@@ -197,8 +198,7 @@ class WitnessComplex():
                 simplex_add = []
                 for e in simplicial_complex:
                     element = e[0]
-                    if (element[0] != i_add and len(element) == 1) or (
-                            1 < len(element) < 2):
+                    if element[0] != i_add and len(element) == 1:
                         element_copy = element.copy()
                         element_copy.append(i_add)
                         simplex_add.append([element_copy, i_dist])
@@ -263,9 +263,9 @@ class WitnessComplex():
           
         simplicial_complex = combine_results(results)
         
-        sorted_simplicial_compex = sorted(simplicial_complex, key=lambda x: x[1])
+        sorted_simplicial_complex = sorted(simplicial_complex, key=lambda x: x[1])
 
-        for simplex in sorted_simplicial_compex:
+        for simplex in sorted_simplicial_complex:
             simplex_tree.insert(simplex[0], filtration=simplex[1])
             self.simplex_tree = simplex_tree
             
