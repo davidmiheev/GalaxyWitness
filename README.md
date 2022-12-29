@@ -1,6 +1,7 @@
 # GalaxyWitness
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 [![CodeFactor](https://www.codefactor.io/repository/github/davidosx/galaxywitness/badge/master)](https://www.codefactor.io/repository/github/davidosx/galaxywitness/overview/master)
+[![Documentation Status](https://readthedocs.org/projects/galaxywitness/badge/?version=latest)](https://galaxywitness.readthedocs.io/en/latest/?badge=latest)
 
 
 Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA. Based on [GUDHI](https://gudhi.inria.fr) and [Astropy](https://www.astropy.org)
