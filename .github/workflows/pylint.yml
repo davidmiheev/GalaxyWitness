@@ -22,4 +22,4 @@ jobs:
         python setup.py install
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=trailing-whitespace,invalid-name $(git ls-files '*.py')
+        pylint --disable=trailing-whitespace,invalid-name,fixme,line-too-long $(git ls-files '*.py')
