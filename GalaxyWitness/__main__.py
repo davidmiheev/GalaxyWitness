@@ -1,5 +1,7 @@
 import os
 import time
+import requests
+import sys
 
 ################# Banner ########################
 print("\n")
@@ -95,11 +97,46 @@ def clustering(fil_complex, path_to_save):
     
     print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m\
     in \033[01;32m{t}\033[0m sec.\n")
-    
+
+def download_prepared_datasets():
+    # временное решение, пока не подготовили датасеты
+    print("Choose one of available datasets:")
+    print("1. result_glist_s")
+    print("2. another dataset")
+    input_dataset = int(input())
+    if input_dataset == 1:
+        link = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
+        file_name = "result_glist_s.csv"
+
+        os.chdir("./data")
+        with open(file_name, "wb") as f:
+            print("Downloading %s" % file_name)
+            response = requests.get(link, stream=True)
+            total_length = response.headers.get('content-length')
+
+            if total_length is None: # no content length header
+                f.write(response.content)
+            else:
+                dl = 0
+                total_length = int(total_length)
+                for data in response.iter_content(chunk_size=4096):
+                    dl += len(data)
+                    f.write(data)
+                    done = int(50 * dl / total_length)
+                    sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
+                    sys.stdout.flush()
+        os.chdir("..")
+    else:
+        print("will be implemented soon...")
 
 def preconfiguration():
     print(f"\nSystem information: \033[01;32m{os.uname()}\033[0m")
     print("\nPreconfiguration:\n")
+    prepared = input(" > Do you want to use prepared datasets? [y/n]: ")
+
+    if prepared == "y":
+        download_prepared_datasets()
+    
     print("\nChoose file with your data [.csv file]:")
     
     data_tables = os.walk('./data')
