@@ -8,3 +8,4 @@ plotly
 kaleido
 sphinx
 sphinx-rtd-theme
+tqdm

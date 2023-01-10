@@ -27,11 +27,16 @@ import plotly.graph_objects as go
 import pandas as pd
 import gudhi
 
+import urllib.request
+from tqdm import tqdm
+import ssl
+
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
 from GalaxyWitness.witness_complex import WitnessComplex
+from GalaxyWitness.downloader import DownloadProgressBar
 
 MAX_DIM = 3
 
@@ -100,31 +105,19 @@ def clustering(fil_complex, path_to_save):
 
 def download_prepared_datasets():
     # временное решение, пока не подготовили датасеты
+    ssl._create_default_https_context = ssl._create_unverified_context
     print("Choose one of available datasets:")
     print("1. result_glist_s")
     print("2. another dataset")
     input_dataset = int(input())
     if input_dataset == 1:
-        link = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
-        file_name = "result_glist_s.csv"
+        url = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
+        fname = "result_glist_s.csv"
 
         os.chdir("./data")
-        with open(file_name, "wb") as f:
-            print("Downloading %s" % file_name)
-            response = requests.get(link, stream=True)
-            total_length = response.headers.get('content-length')
-
-            if total_length is None: # no content length header
-                f.write(response.content)
-            else:
-                dl = 0
-                total_length = int(total_length)
-                for data in response.iter_content(chunk_size=4096):
-                    dl += len(data)
-                    f.write(data)
-                    done = int(50 * dl / total_length)
-                    sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
-                    sys.stdout.flush()
+        with DownloadProgressBar(unit='B', unit_scale=True,
+                             miniters=1, desc=url.split('/')[-1]) as t:
+            urllib.request.urlretrieve(url, filename=fname, reporthook=t.update_to)
         os.chdir("..")
     else:
         print("will be implemented soon...")
