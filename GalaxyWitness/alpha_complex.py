@@ -50,7 +50,6 @@ class AlphaComplex("""BaseComplex"""):
 
         """
         # Duplicates WitnessComplex.external_simplex_tree(simplex_tree)
-        pass
 
     def compute_simplicial_complex(self, d_max, r_max=None):
         """
@@ -237,4 +236,3 @@ class AlphaComplex("""BaseComplex"""):
         t.fit(self.points)
         t.n_clusters_ = self.betti[0]
         return t
-

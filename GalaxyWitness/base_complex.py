@@ -124,7 +124,6 @@ class BaseComplex:
         :param path_to_save: place, where we are saving files
         :type  path_to_save: str
         """
-        pass
 
     @abstractmethod
     def tomato(self):
@@ -134,4 +133,3 @@ class BaseComplex:
         max value of filtration.
 
         """
-        pass
