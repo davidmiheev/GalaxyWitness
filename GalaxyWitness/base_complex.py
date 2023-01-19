@@ -13,11 +13,18 @@ class BaseComplex:
 
     """
 
-    __slots__ = [
-        'simplex_tree',
-        'simplex_tree_computed',
-        'betti'
-    ]
+    # __slots__ = [
+    #     'landmarks',
+    #     'witnesses',
+    #     'distances',
+    #     'distances_isomap',
+    #     'landmarks_idxs',
+    #     'isomap_eps',
+    #     'simplex_tree',
+    #     'simplex_tree_computed',
+    #     'weights',
+    #     'betti'
+    # ]
 
     def __init__(self):
         """
@@ -32,12 +39,13 @@ class BaseComplex:
 
     def external_simplex_tree(self, simplex_tree):
         """
-        Load external filtered simplicial complex (as simplex tree) to WitnessComplex instance
+        Load external filtered simplicial complex (as simplex tree) to DescendantComplex instance
 
         :param simplex_tree: external simplex tree
         :type simplex_tree: gudhi.SimplexTree
 
         """
+        # TODO diversify restructured text for descendant classes
 
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
@@ -114,6 +122,13 @@ class BaseComplex:
 
     @abstractmethod
     def animate_simplex_tree(self, path_to_save):
+        """
+        Draw animation of filtration (powered by matplotlib)
+
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str
+
+        """
         pass
 
     @abstractmethod
