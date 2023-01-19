@@ -36,7 +36,6 @@ from astropy.coordinates import Distance
 from astropy import units as u
 
 from GalaxyWitness.witness_complex import WitnessComplex
-from GalaxyWitness.downloader import DownloadProgressBar
 
 MAX_DIM = 3
 
@@ -103,6 +102,22 @@ def clustering(fil_complex, path_to_save):
     print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m\
     in \033[01;32m{t}\033[0m sec.\n")
 
+def download(url: str, fname: str, chunk_size=1024):
+    os.chdir("./data")
+    resp = requests.get(url, stream=True)
+    total = int(resp.headers.get('content-length', 0))
+    with open(fname, 'wb') as file, tqdm(
+        desc=fname,
+        total=total,
+        unit='iB',
+        unit_scale=True,
+        unit_divisor=1024,
+    ) as bar:
+        for data in resp.iter_content(chunk_size=chunk_size):
+            size = file.write(data)
+            bar.update(size)
+    os.chdir("..")
+
 def download_prepared_datasets():
     # временное решение, пока не подготовили датасеты
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -111,14 +126,9 @@ def download_prepared_datasets():
     print("2. another dataset")
     input_dataset = int(input())
     if input_dataset == 1:
-        url = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
-        fname = "result_glist_s.csv"
-
-        os.chdir("./data")
-        with DownloadProgressBar(unit='B', unit_scale=True,
-                             miniters=1, desc=url.split('/')[-1]) as t:
-            urllib.request.urlretrieve(url, filename=fname, reporthook=t.update_to)
-        os.chdir("..")
+        url_ = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
+        fname_ = "result_glist_s.csv"
+        download(url_, fname_)
     else:
         print("will be implemented soon...")
 
@@ -134,7 +144,8 @@ def preconfiguration():
     
     data_tables = os.walk('./data')
     
-    print(data_tables)  
+    print(data_tables)
+    elem = None  
     print("\n\t---------- data -----------")
     for _, _, elem in data_tables:
         for name in elem:
@@ -335,7 +346,4 @@ if __name__ == '__main__':
     print("\033[FLoading... done \033[01;32m\u2714\033[0m")
     pause()
     main()
-
-
-
-            
+         
