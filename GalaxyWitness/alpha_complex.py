@@ -8,55 +8,50 @@ import matplotlib.colors as colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
 
+from GalaxyWitness.base_complex import BaseComplex
+
 # hard-coded
 MAX_N_PLOT = 10000
 NUMBER_OF_FRAMES = 6
 
 
-class AlphaComplex("""BaseComplex"""):
+class AlphaComplex(BaseComplex):
     """
     Main class for handling data about the point cloud and the simplex tree
     of filtered alpha complex
 
-    :param points: set of witnesses in :math:`\mathbb{R}^d`.
-    :type points: np.array size of *n_witnesses x 3*
+    :param points: set of landmarks in :math:`\mathbb{R}^d`.
+    :type points: np.array size of *n_landmarks x 3*
 
     """
 
-    __slots__ = [
-        'weights',
-        'points',
-        'simplex_tree_computed',
-        'simplex_tree',
-        'betti'
-    ]
+    # __slots__ = [
+    #     'landmarks',
+    #     'witnesses',
+    #     'distances',
+    #     'distances_isomap',
+    #     'landmarks_idxs',
+    #     'isomap_eps',
+    #     'simplex_tree',
+    #     'simplex_tree_computed',
+    #     'weights',
+    #     'betti'
+    # ]
 
     def __init__(self, points):
-        # super().__init__() TODO implement inheritance from Base
-
         """
         Constuctor
 
         """
+        super().__init__()
+
         self.points = points
         self.simplex_tree_computed = False
 
-    def external_simplex_tree(self, simplex_tree):
-        """
-        Load external filtered simplicial complex (as simplex tree) to AlphaComplex instance
-
-        :param simplex_tree: external simplex tree
-        :type simplex_tree: gudhi.SimplexTree
-
-        """
-        # Duplicates WitnessComplex.external_simplex_tree(simplex_tree)
-
-    def compute_simplicial_complex(self, d_max, r_max=None):
+    def compute_simplicial_complex(self, r_max, **kwargs):
         """
         Compute custom filtered simplicial complex
 
-        :param d_max: max dimension of simplices in the simplex tree
-        :type d_max: int
         :param r_max: max filtration value
         :type  r_max: float
 
@@ -64,21 +59,8 @@ class AlphaComplex("""BaseComplex"""):
 
         tmp = gudhi.AlphaComplex(points=self.points)
 
-        self.simplex_tree = tmp.create_simplex_tree(max_alpha_square=r_max ** 2,
-                                                    limit_dimension=d_max)
+        self.simplex_tree = tmp.create_simplex_tree(max_alpha_square=r_max ** 2)
         self.simplex_tree_computed = True
-
-    def get_persistence_betti(self, dim, magnitude):
-        # Duplicates WitnessComplex.get_persistence_betti(dim, magnitude)
-        pass
-
-    def get_diagram(self, show=False, path_to_save=None):
-        # Duplicates WitnessComplex.get_diagram(show, path_to_save)
-        pass
-
-    def get_barcode(self, show=False, path_to_save=None):
-        # Duplicates WitnessComplex.get_barcode(show, path_to_save)
-        pass
 
     def animate_simplex_tree(self, path_to_save):
         """
@@ -91,7 +73,6 @@ class AlphaComplex("""BaseComplex"""):
         assert self.simplex_tree_computed
 
         gen = self.simplex_tree.get_filtration()
-
         verts = []
         gen = list(gen)
         scale = NUMBER_OF_FRAMES / gen[-1][1]
@@ -148,7 +129,7 @@ class AlphaComplex("""BaseComplex"""):
 
                         verts.clear()
 
-            ax.set_title(f"Animation of witness filtration: picture #{num} of {NUMBER_OF_FRAMES}")
+            ax.set_title(f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}")
 
             if path_to_save is not None:
                 plt.savefig(path_to_save + f"/picture{num}.png", dpi=200)
