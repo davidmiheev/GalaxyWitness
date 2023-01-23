@@ -14,7 +14,7 @@ try:
 
     with open("GalaxyWitness/ansiname.txt", encoding="utf-8") as ansiname:
         for str2 in ansiname:
-            print("\t\t\t" + str1, end="")
+            print("\t\t\t" + str2, end="")
 except OSError:
     print("\033[01;32mGalaxyWitness\033[0m\n")
     print("\033[01;33mWarning: Can't load the banner!\033[0m")
