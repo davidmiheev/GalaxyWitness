@@ -1,14 +1,14 @@
 import math
 import os
 
+import multiprocessing as mp
 from joblib import Parallel, delayed
 from joblib import dump, load
-import multiprocessing as mp
 
 import numpy as np
 
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
+from matplotlib import colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
 
@@ -68,6 +68,7 @@ class WitnessComplex(BaseComplex):
         self.simplex_tree_computed = False
         self.landmarks_idxs = landmarks_idxs
         self.isomap_eps = isomap_eps
+        self.simplex_tree = None
 
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
             
@@ -144,7 +145,7 @@ class WitnessComplex(BaseComplex):
 
             # sort row by landmarks witnessed
             sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
-            if r_max != None:
+            if r_max is not None:
                 sorted_row_new_temp = []
                 for element in sorted_row:
                     if element[1] < r_max:
@@ -152,10 +153,10 @@ class WitnessComplex(BaseComplex):
                 sorted_row = sorted_row_new_temp
 
             simplices_temp = []
-            for i in range(len(sorted_row)):
-                simplices_temp.append([[sorted_row[i][0]], sorted_row[i][1]])
-                simplex_add = self._update_register_simplex(simplices_temp.copy(), sorted_row[i][0],
-                                                            sorted_row[i][1])
+            for elem in sorted_row:
+                simplices_temp.append([[elem[0]], elem[1]])
+                simplex_add = self._update_register_simplex(simplices_temp.copy(), elem[0],
+                                                            elem[1])
                 
                 simplices_temp += simplex_add
 
@@ -201,7 +202,7 @@ class WitnessComplex(BaseComplex):
             for row_i in range(distances[ind].shape[0]):
                 row = distances[ind][row_i, :]
                 sorted_row = sorted([*enumerate(row)], key=lambda x: x[1])
-                if r_max != None:
+                if r_max is not None:
                     sorted_row_new_temp = []
                     for element in sorted_row:
                         if element[1] < r_max:
@@ -209,11 +210,11 @@ class WitnessComplex(BaseComplex):
                     sorted_row = sorted_row_new_temp
 
                 simplices_temp = []
-                for i in range(len(sorted_row)):
-                    simplices_temp.append([[sorted_row[i][0]], sorted_row[i][1]])
+                for elem in sorted_row:
+                    simplices_temp.append([[elem[0]], elem[1]])
                     simplex_add = update_register_simplex(simplices_temp.copy(),
-                                                          sorted_row[i][0],
-                                                          sorted_row[i][1])
+                                                          elem[0],
+                                                          elem[1])
                     
                     simplices_temp += simplex_add
 
@@ -302,8 +303,8 @@ class WitnessComplex(BaseComplex):
             ax.set_zlabel('Z, Mpc')
             
             for element in gen:
-                if(element[1]*scale <= num):
-                    if(len(element[0]) == 2):
+                if element[1]*scale <= num:
+                    if len(element[0]) == 2:
                         x = [self.landmarks[element[0][0]][0], 
                         self.landmarks[element[0][1]][0]]
                         
@@ -315,7 +316,7 @@ class WitnessComplex(BaseComplex):
                         
                         ax.plot(x, y, z)
                         
-                    if(len(element[0]) == 3):
+                    if len(element[0]) == 3:
                         x = [self.landmarks[element[0][0]][0], 
                         self.landmarks[element[0][1]][0], 
                         self.landmarks[element[0][2]][0]]
@@ -376,8 +377,8 @@ class WitnessComplex(BaseComplex):
                                     marker=dict(size=2, color='orange')))
             
             for element in gen:
-                if(element[1]*scale <= num):
-                    if(len(element[0]) == 2):
+                if element[1]*scale <= num:
+                    if len(element[0]) == 2:
                         x = [self.landmarks[element[0][0]][0], 
                         self.landmarks[element[0][1]][0]]
                         
@@ -393,7 +394,7 @@ class WitnessComplex(BaseComplex):
                                                 marker = dict(size=2, color='orange'),
                                                 line = dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
                                                 
-                    if(len(element[0]) == 3):
+                    if len(element[0]) == 3:
                         x = [self.landmarks[element[0][0]][0], 
                         self.landmarks[element[0][1]][0], 
                         self.landmarks[element[0][2]][0]]

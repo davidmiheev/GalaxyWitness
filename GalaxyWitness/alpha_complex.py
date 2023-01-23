@@ -4,7 +4,7 @@ from gudhi.clustering.tomato import Tomato
 import numpy as np
 
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
+from matplotlib import colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
 
@@ -44,6 +44,7 @@ class AlphaComplex(BaseComplex):
 
         """
         super().__init__()
+        self.simplex_tree = None
 
         self.points = points
         self.simplex_tree_computed = False
@@ -93,8 +94,8 @@ class AlphaComplex(BaseComplex):
             ax.set_zlabel('Z, Mpc')
 
             for element in gen:
-                if (element[1] * scale <= num):
-                    if (len(element[0]) == 2):
+                if element[1] * scale <= num:
+                    if len(element[0]) == 2:
                         x = [self.points[element[0][0]][0],
                              self.points[element[0][1]][0]]
 
@@ -106,7 +107,7 @@ class AlphaComplex(BaseComplex):
 
                         ax.plot(x, y, z)
 
-                    if (len(element[0]) == 3):
+                    if len(element[0]) == 3:
                         x = [self.points[element[0][0]][0],
                              self.points[element[0][1]][0],
                              self.points[element[0][2]][0]]
@@ -159,8 +160,8 @@ class AlphaComplex(BaseComplex):
                                  marker=dict(size=2, color='orange'))]
 
             for element in gen:
-                if (element[1] * scale <= num):
-                    if (len(element[0]) == 2):
+                if element[1] * scale <= num:
+                    if len(element[0]) == 2:
                         x = [self.points[element[0][0]][0],
                              self.points[element[0][1]][0]]
 
@@ -176,7 +177,7 @@ class AlphaComplex(BaseComplex):
                                                  marker=dict(size=2, color='orange'),
                                                  line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
 
-                    if (len(element[0]) == 3):
+                    if len(element[0]) == 3:
                         x = [self.points[element[0][0]][0],
                              self.points[element[0][1]][0],
                              self.points[element[0][2]][0]]

@@ -1,17 +1,21 @@
 import os
 import time
+import ssl
+import webbrowser
 import requests
-import sys
+
 
 ################# Banner ########################
 print("\n")
 try:
-    for str1 in open("GalaxyWitness/ansi.txt"):
-        print("\t\t\t" + str1, end="")
+    with open("GalaxyWitness/ansi.txt", encoding="utf-8") as ansi:
+        for str1 in ansi:
+            print("\t\t\t" + str1, end="")
 
-    for str2 in open("GalaxyWitness/ansiname.txt"):
-        print("\t\t\t" + str2, end="")
-except Exception:
+    with open("GalaxyWitness/ansiname.txt", encoding="utf-8") as ansiname:
+        for str2 in ansiname:
+            print("\t\t\t" + str2, end="")
+except OSError:
     print("\033[01;32mGalaxyWitness\033[0m\n")
     print("\033[01;33mWarning: Can't load the banner!\033[0m")
 
@@ -19,17 +23,15 @@ print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")
 #################################################
 
-import webbrowser
-import readline
+
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 import gudhi
 
-import urllib.request
+
 from tqdm import tqdm
-import ssl
 
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
@@ -129,7 +131,7 @@ def clustering(fil_complex, points, path_to_save):
 
 def download(url: str, fname: str, chunk_size=1024):
     os.chdir("./data")
-    resp = requests.get(url, stream=True)
+    resp = requests.get(url, stream=True, timeout=60)
     total = int(resp.headers.get('content-length', 0))
     with open(fname, 'wb') as file, tqdm(
         desc=fname,
@@ -137,10 +139,10 @@ def download(url: str, fname: str, chunk_size=1024):
         unit='iB',
         unit_scale=True,
         unit_divisor=1024,
-    ) as bar:
+    ) as bar_:
         for data in resp.iter_content(chunk_size=chunk_size):
             size = file.write(data)
-            bar.update(size)
+            bar_.update(size)
     os.chdir("..")
 
 def download_prepared_datasets():
@@ -195,8 +197,8 @@ def preconfiguration():
 def main():
     try:
         df = preconfiguration()
-    except ValueError:
-        raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m")
+    except ValueError as e:
+        raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m") from e
 
     doc_key = input(" > Do you want to open documentation? [y/n]: ")
     if doc_key == 'y':
@@ -226,7 +228,7 @@ def main():
     key_save = 'n'
     key_complex_type = 'gudhi'
     key_fig = 'mpl'
-    if (key_adv) == 'y':
+    if key_adv == 'y':
         key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
         key_anim = input(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ")
         if key_anim == 'y':
@@ -258,7 +260,7 @@ def main():
             os.mkdir('imgs')
         os.mkdir(path_to_save)
 
-    if (key_adv) == 'y':
+    if key_adv == 'y':
         section()
         print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
 
@@ -386,4 +388,3 @@ if __name__ == '__main__':
     print("\033[FLoading... done \033[01;32m\u2714\033[0m")
     pause()
     main()
-
