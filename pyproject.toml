@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "galaxywitness"
+name = "GalaxyWitness"
 version = "0.2.2"
 description = "Package for topological analysis of galactic clusters"
 authors = ["David Miheev <me@davidkorol.life>"]
