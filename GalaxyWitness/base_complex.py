@@ -31,6 +31,8 @@ class BaseComplex:
         Constuctor
 
         """
+        self.simplex_tree = None
+        self.betti = None
         self.simplex_tree_computed = False
 
     @abstractmethod
@@ -63,14 +65,14 @@ class BaseComplex:
         """
         assert self.simplex_tree_computed
         self.simplex_tree.compute_persistence()
-        ans = np.zeros(dim, dtype=int)
+        betti = np.zeros(dim, dtype=int)
         for j in range(dim):
             pers = self.simplex_tree.persistence_intervals_in_dimension(j)
             for e in pers:
                 if e[1] - e[0] > magnitude:
-                    ans[j] += 1
-        self.betti = ans
-        return ans
+                    betti[j] += 1
+        self.betti = betti
+        return betti
 
     def get_diagram(self, show=False, path_to_save=None):
         """
@@ -83,7 +85,7 @@ class BaseComplex:
         """
 
         assert self.simplex_tree_computed
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         diag = self.simplex_tree.persistence()
         gudhi.plot_persistence_diagram(diag, axes=ax, legend=True)
@@ -107,7 +109,7 @@ class BaseComplex:
         """
 
         assert self.simplex_tree_computed
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         diag = self.simplex_tree.persistence()
 
@@ -129,7 +131,7 @@ class BaseComplex:
         :type  path_to_save: str
 
         """
-        pass
+
 
     @abstractmethod
     def animate_simplex_tree_plotly(self, path_to_save):

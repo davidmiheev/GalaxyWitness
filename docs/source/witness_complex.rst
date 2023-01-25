@@ -1,13 +1,14 @@
-Development
-===========
+Programming Interface
+=====================
 
-WitnessComplex (class)
-----------------------
+WitnessComplex
+--------------
 
 .. autoclass:: GalaxyWitness.witness_complex.WitnessComplex
 	 :members:
 	
-AlphaComplex (class)
---------------------
+AlphaComplex
+-------------
 
-Coming soon...
+.. autoclass:: GalaxyWitness.witness_complex.WitnessComplex
+	 :members:

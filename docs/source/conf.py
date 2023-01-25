@@ -2,7 +2,7 @@
 import GalaxyWitness
 
 project = 'GalaxyWitness'
-copyright = '2021-2022, David Miheev'
+copyright = '2021-2023, David Miheev'
 author = 'David Miheev'
 version = GalaxyWitness.__version__
 
@@ -27,7 +27,4 @@ latex_elements = {
 \usepackage{amssymb, amsmath, amsthm, mathrsfs, mathbbol}
 \usepackage{fontspec, mathspec}
 """
-    
 }
-
-

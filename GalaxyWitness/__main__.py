@@ -2,7 +2,6 @@ import os
 import time
 import ssl
 import webbrowser
-import requests
 
 
 ################# Banner ########################
@@ -25,21 +24,19 @@ print("Loading...")
 
 
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
-import gudhi
 
-
-from tqdm import tqdm
 
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
 
+
 from GalaxyWitness.base_complex import BaseComplex
 from GalaxyWitness.witness_complex import WitnessComplex
 from GalaxyWitness.alpha_complex import AlphaComplex
+from GalaxyWitness.datasets import Dataset
 
 MAX_DIM = 3
 
@@ -129,36 +126,24 @@ def clustering(fil_complex, points, path_to_save):
     print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m\
     in \033[01;32m{t}\033[0m sec.\n")
 
-def download(url: str, fname: str, chunk_size=1024):
-    os.chdir("./data")
-    resp = requests.get(url, stream=True, timeout=60)
-    total = int(resp.headers.get('content-length', 0))
-    with open(fname, 'wb') as file, tqdm(
-        desc=fname,
-        total=total,
-        unit='iB',
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as bar_:
-        for data in resp.iter_content(chunk_size=chunk_size):
-            size = file.write(data)
-            bar_.update(size)
-    os.chdir("..")
 
 def download_prepared_datasets():
-    # временное решение, пока не подготовили датасеты
     ssl._create_default_https_context = ssl._create_unverified_context
     print("Choose one of available datasets:")
-    print("1. result_glist_s")
-    print("2. another dataset")
-    input_dataset = int(input())
+    print("\n\t---------- datasets -----------")
+    print("\t\033[01;32m[1] <-> Galaxies_400K\033[0m")
+    print("\t\033[01;32m[2] <-> another dataset\033[0m")
+    print("\t--------------------------------\n")
+    input_dataset = int(input(" > Enter number of dataset: "))
+    name = ''
     if input_dataset == 1:
-        url_ = "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv"
-        fname_ = "result_glist_s.csv"
-        download(url_, fname_)
+        name = 'Galaxies_400K'
     else:
         print("will be implemented soon...")
 
+    dataset = Dataset(name)
+    dataset.download()
+    
 
 def preconfiguration():
     print(f"\nSystem information: \033[01;32m{os.uname()}\033[0m")
@@ -177,7 +162,7 @@ def preconfiguration():
     print("\n\t---------- data -----------")
     for _, _, elem in data_tables:
         for name in elem:
-            print(f"\t{elem.index(name) + 1} <- {name}")
+            print(f"\t\033[01;32m[{elem.index(name) + 1}] <-> {name}\033[0m")
     print("\t---------------------------\n")
 
     table_num = int(input(f" > Enter number of your table [1-{len(elem)}]: "))
@@ -195,15 +180,18 @@ def preconfiguration():
 
 
 def main():
+    doc_key = input(" > Do you want to open documentation? [y/n]: ")
+    if doc_key == 'y':
+        print("\nBuilding documentation with \033[01;32mSphinx\033[0m...")
+        os.system('sphinx-build -b html docs/source/ docs/build/html')
+        print("Building done\033[01;32m \u2714\033[0m")
+        url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
+        webbrowser.open(url, new=2)
+    
     try:
         df = preconfiguration()
     except ValueError as e:
         raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m") from e
-
-    doc_key = input(" > Do you want to open documentation? [y/n]: ")
-    if doc_key == 'y':
-        url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
-        webbrowser.open(url, new=2)
 
     # readline.set_auto_history(True)
     n_gal = int(input(f" > Enter number of galaxies [10-{len(df)}]: "))
@@ -256,7 +244,7 @@ def main():
 
     if key_save == 'y':
         path_to_save = os.path.abspath('.') + '/imgs/' + time_str + f"-{n_gal}-{n_landmarks}"
-        if (not os.path.isdir('imgs')):
+        if not os.path.isdir('imgs'):
             os.mkdir('imgs')
         os.mkdir(path_to_save)
 
@@ -271,7 +259,7 @@ def main():
         print("\n\t---------- column names -----------")
         for elem in list_names:
             if list_names.index(elem) != 0:
-                print(f"\t{list_names.index(elem)} <- {elem}")
+                print(f"\t\033[01;32m{list_names.index(elem)} <-> {elem}\033[0m")
 
         print("\t-----------------------------------\n")
 
@@ -328,7 +316,7 @@ def main():
             plot_data_cloud(witnesses, landmarks, key_save, path_to_save)
         else:
             plot_data_cloud_alpha(landmarks, key_save, path_to_save)
-        print(f"\033[FTrying plot data cloud... done \033[01;32m\u2714\033[0m")
+        print("\033[FTrying plot data cloud... done \033[01;32m\u2714\033[0m")
         pause()
         section()
 
@@ -356,11 +344,10 @@ def main():
 
     t = time.time() - t
 
-    print(
-        f"\033[FComputing persistence with {type_of_complex} filtration... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
+    print(f"\033[FComputing persistence with {type_of_complex} filtration... done\033[01;32m \u2714\033[0m in \033[01;32m{t}\033[0m sec.\n")
     pause()
 
-    print(f"The \033[01;32msimplex tree\033[0m constructed \033[01;32m\u2714\033[0m")
+    print("The \033[01;32msimplex tree\033[0m constructed \033[01;32m\u2714\033[0m")
     print(f"\t\033[01;32msimplex tree stats:\n\t dim: {simplex_tree.dimension()}\033[0m")
     print(f"\t\033[01;32m number of vertices (landmarks): {simplex_tree.num_vertices()}\033[0m")
     print(f"\t\033[01;32m total number of simplices: {simplex_tree.num_simplices()}\033[0m")
@@ -372,7 +359,7 @@ def main():
 
     draw_diagrams_and_animation(complex_, key_anim, path_to_save, key_fig)
 
-    print(f"\033[F\033[F\033[FDrawing persistence diagram and barcode... done \033[01;32m \u2714\033[0m")
+    print("\033[F\033[F\033[FDrawing persistence diagram and barcode... done \033[01;32m \u2714\033[0m")
     pause()
 
     section()

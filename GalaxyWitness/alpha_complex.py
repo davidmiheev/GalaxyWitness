@@ -148,7 +148,7 @@ class AlphaComplex(BaseComplex):
 
         gen = self.simplex_tree.get_filtration()
 
-        verts = []
+        
         gen = list(gen)
         scale = NUMBER_OF_FRAMES / gen[-1][1]
 

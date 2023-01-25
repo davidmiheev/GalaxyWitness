@@ -1,13 +1,12 @@
-import os
 import setuptools
 
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
     
 setuptools.setup(
     name='GalaxyWitness',
-    version='0.2.1',
+    version='0.2.2',
     license='MIT',
     author='David Miheev',
     author_email='me@davidkorol.life',
@@ -19,8 +18,3 @@ setuptools.setup(
     python_requires='>=3.8',
     include_package_data=True,
 )
-
-print("\nBuilding documentation with \033[01;32mSphinx\033[0m...")
-os.system('sphinx-build -b html docs/source/ docs/build/html')
-
-

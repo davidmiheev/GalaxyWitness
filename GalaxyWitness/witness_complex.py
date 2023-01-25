@@ -3,7 +3,7 @@ import os
 
 import multiprocessing as mp
 from joblib import Parallel, delayed
-from joblib import dump, load
+from joblib import dump
 
 import numpy as np
 
@@ -62,12 +62,11 @@ class WitnessComplex(BaseComplex):
         
         """
         super().__init__()
-        #todo: implement other metrices
+        
         self.landmarks = landmarks
         self.witnesses = witnesses
         self.simplex_tree_computed = False
         self.landmarks_idxs = landmarks_idxs
-        self.isomap_eps = isomap_eps
         self.simplex_tree = None
 
         self.distances = pairwise_distances(witnesses, landmarks, n_jobs = n_jobs)
@@ -76,23 +75,23 @@ class WitnessComplex(BaseComplex):
             #distances = pairwise_distances(witnesses, n_jobs = -1)
                         
             # todo: optimize
-            def _create_large_matrix():
+            def create_large_matrix():
                 matrix = np.zeros((self.distances.shape[0], self.distances.shape[0]))
                 for i in range(self.distances.shape[0]):
                     for j in range(self.distances.shape[1]):
-                        if self.distances[i][j] < self.isomap_eps:
+                        if self.distances[i][j] < isomap_eps:
                             matrix[i][landmarks_idxs[j]] = self.distances[i][j]
                 return matrix
-            def _create_small_matrix(matrix):
+            def create_small_matrix(matrix):
                 for i in range(self.distances.shape[0]):
                     for j in range(self.distances.shape[1]):
-                            self.distances[i][j] = matrix[i][landmarks_idxs[j]]
+                        self.distances[i][j] = matrix[i][landmarks_idxs[j]]
                 
-            matrix = _create_large_matrix()
+            matrix = create_large_matrix()
             matrix = csr_matrix(matrix)
             matrix = floyd_warshall(csgraph = matrix, directed = False)
             self.distances_isomap = matrix
-            _create_small_matrix(matrix)
+            create_small_matrix(matrix)
 
     def compute_simplicial_complex(self, d_max, r_max=None, n_jobs = 1, custom=False):
         """
@@ -181,7 +180,7 @@ class WitnessComplex(BaseComplex):
         #@delayed
         #@wrap_non_picklable_objects
         
-        def process_wc(distances, ind, r_max=r_max, d_max=d_max):
+        def process_wc(distances, ind, r_max=r_max):
 
             simplicial_complex = []
             
@@ -245,7 +244,7 @@ class WitnessComplex(BaseComplex):
         
         data_filename_memmap = os.path.join(folder, 'distances_memmap')
         dump(distances_chunk, data_filename_memmap)
-        data = load(data_filename_memmap, mmap_mode='r')
+        # data = load(data_filename_memmap, mmap_mode='r')
         
         results = Parallel(n_jobs=n_jobs)(delayed(process_wc)(distances=distances_chunk, ind=i) for i in range(n_jobs))
         #pool.map(process_wc, distances_chunk)
@@ -357,7 +356,6 @@ class WitnessComplex(BaseComplex):
         
         gen = self.simplex_tree.get_filtration()
         
-        verts = []
         gen = list(gen)
         scale = NUMBER_OF_FRAMES/gen[-1][1]
 
