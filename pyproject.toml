@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "GalaxyWitness"
-version = "0.2.2"
+version = "0.2.3"
 description = "Package for topological analysis of galactic clusters"
 authors = ["David Miheev <me@davidkorol.life>"]
 license = "MIT"

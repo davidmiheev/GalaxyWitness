@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     
 setuptools.setup(
     name='GalaxyWitness',
-    version='0.2.2',
+    version='0.2.3',
     license='MIT',
     author='David Miheev',
     author_email='me@davidkorol.life',
