@@ -2,16 +2,17 @@ import os
 import time
 import ssl
 import webbrowser
+import site
 
 
 ################# Banner ########################
 print("\n")
 try:
-    with open("GalaxyWitness/ansi.txt", encoding="utf-8") as ansi:
+    with open(site.getsitepackages()[0] + "/galaxywitness/ansi.txt", encoding="utf-8") as ansi:
         for str1 in ansi:
             print("\t\t\t" + str1, end="")
 
-    with open("GalaxyWitness/ansiname.txt", encoding="utf-8") as ansiname:
+    with open(site.getsitepackages()[0] + "/galaxywitness/ansiname.txt", encoding="utf-8") as ansiname:
         for str2 in ansiname:
             print("\t\t\t" + str2, end="")
 except OSError:
@@ -33,10 +34,10 @@ from astropy.coordinates import Distance
 from astropy import units as u
 
 
-from GalaxyWitness.base_complex import BaseComplex
-from GalaxyWitness.witness_complex import WitnessComplex
-from GalaxyWitness.alpha_complex import AlphaComplex
-from GalaxyWitness.datasets import Dataset
+from galaxywitness.base_complex import BaseComplex
+from galaxywitness.witness_complex import WitnessComplex
+from galaxywitness.alpha_complex import AlphaComplex
+from galaxywitness.datasets import Dataset
 
 MAX_DIM = 3
 

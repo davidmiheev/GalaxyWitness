@@ -8,7 +8,7 @@ from matplotlib import colors
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
 
-from GalaxyWitness.base_complex import BaseComplex
+from galaxywitness.base_complex import BaseComplex
 
 # hard-coded
 MAX_N_PLOT = 10000

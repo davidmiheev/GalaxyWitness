@@ -21,7 +21,7 @@ from gudhi.clustering.tomato import Tomato
 
 from sklearn.metrics import pairwise_distances
 
-from GalaxyWitness.base_complex import BaseComplex
+from galaxywitness.base_complex import BaseComplex
 
 # hard-coded
 #MAX_DIST_INIT = 100000

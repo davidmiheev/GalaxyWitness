@@ -11,5 +11,5 @@ Available datasets
 Programming interface for datasets
 ----------------------------------
 
-.. autoclass:: GalaxyWitness.datasets.Dataset
+.. autoclass:: galaxywitness.datasets.Dataset
 	 :members:

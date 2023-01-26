@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "GalaxyWitness"
-version = "0.2.3"
-description = "Package for topological analysis of galactic clusters"
+name = "galaxywitness"
+version = "0.2.3_1"
+description = "Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA"
 authors = ["David Miheev <me@davidkorol.life>"]
 license = "MIT"
 readme = "README.md"
@@ -18,6 +18,7 @@ plotly = "^5.11.0"
 kaleido = "^0.2.1"
 Sphinx = "^5.3.0"
 sphinx-rtd-theme = "^1.1.1"
+tqdm = "^4.64.1"
 
 
 [build-system]

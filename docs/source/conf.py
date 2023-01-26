@@ -1,10 +1,10 @@
 
-import GalaxyWitness
+import galaxywitness
 
 project = 'GalaxyWitness'
 copyright = '2021-2023, David Miheev'
 author = 'David Miheev'
-version = GalaxyWitness.__version__
+version = galaxywitness.__version__
 
 
 extensions = [
