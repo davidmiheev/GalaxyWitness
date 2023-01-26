@@ -5,7 +5,6 @@ scikit-learn
 pandas
 astropy
 plotly
-kaleido
 sphinx
 sphinx-rtd-theme
 tqdm
