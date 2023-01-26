@@ -183,11 +183,10 @@ def preconfiguration():
 def main():
     doc_key = input(" > Do you want to open documentation? [y/n]: ")
     if doc_key == 'y':
-        print("\nBuilding documentation with \033[01;32mSphinx\033[0m...")
-        os.system('sphinx-build -b html docs/source/ docs/build/html')
-        print("Building done\033[01;32m \u2714\033[0m")
-        url = 'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
+        print("\nOpening documentation...")
+        url = 'https://galaxywitness.rtfd.io' #'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
         webbrowser.open(url, new=2)
+        print("Done\033[01;32m \u2714\033[0m")
     
     try:
         df = preconfiguration()

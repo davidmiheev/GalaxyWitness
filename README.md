@@ -72,6 +72,7 @@ Or poetry package manager:
 git clone https://github.com/davidosx/GalaxyWitness
 cd GalaxyWitness
 poetry install
+python setup.py install
 ```
 
 ### Uninstalling

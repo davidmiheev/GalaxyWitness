@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "galaxywitness"
-version = "0.2.3_1"
+version = "0.2.3.1"
 description = "Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA"
 authors = ["David Miheev <me@davidkorol.life>"]
 license = "MIT"
@@ -8,17 +8,17 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-numpy = "^1.23.5"
-matplotlib = "^3.6.2"
-gudhi = "^3.6.0"
-scikit-learn = "^1.1.3"
-pandas = "^1.5.2"
-astropy = "^5.1.1"
-plotly = "^5.11.0"
-kaleido = "^0.2.1"
-Sphinx = "^5.3.0"
-sphinx-rtd-theme = "^1.1.1"
-tqdm = "^4.64.1"
+numpy = "*"
+matplotlib = "*"
+gudhi = "*"
+scikit-learn = "*"
+pandas = "*"
+astropy = "*"
+plotly = "*"
+kaleido = "*"
+Sphinx = "*"
+sphinx-rtd-theme = "*"
+tqdm = "*"
 
 
 [build-system]
