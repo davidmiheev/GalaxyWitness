@@ -67,6 +67,10 @@ class Dataset:
         :type name: str
         
         """
+        self.name = name
         if name in self.addresses:
-            self.name = name
             self.url = self.addresses[name]
+            self.dataset_prepared = True
+        else:
+            print("Incorrect name of dataset")
+            self.dataset_prepared = False
