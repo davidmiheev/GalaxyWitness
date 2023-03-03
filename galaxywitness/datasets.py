@@ -70,13 +70,14 @@ class Dataset:
         """
         assert self.dataset_prepared
         tap_service = vo.dal.TAPService(self.url)
+        tap_service.describe()
         oid, redshift, table, otype = '', '', '', ''
         if self.name == "rcsed": oid = "objid"; redshift = "z"; table = "specphot.rcsed"
         elif self.name == "simbad": oid = "main_id"; redshift = "rvz_redshift"; table = "basic"; otype = "AND otype = 'galaxy..'"
         elif self.name == "ned": oid = "prefname"; redshift = "z"; table = "objdir"; otype = "AND (pretype = 'G' OR pretype = 'QSO')"
 
         tap_results = tap_service.run_async(f"SELECT {oid}, ra, dec, {redshift} FROM {table} WHERE ra is not NULL AND \
-                                            dec is not NULL AND {redshift} > 0 {otype}", maxrec = size)
+                                            dec is not NULL AND {redshift} > 0 {otype} ORDER BY {redshift}", maxrec = size)
         
         header = [oid, 'ra', 'dec', redshift]
         rows = []

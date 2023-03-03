@@ -17,7 +17,7 @@ try:
             print("\t\t\t" + str2, end="")
 except OSError:
     print("\033[01;32mGalaxyWitness\033[0m\n")
-    print("\033[01;33mWarning: Can't load the banner!\033[0m")
+    print("\033[01;33mWarning: Can't load the banner! Dev version\033[0m")
 
 print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")
@@ -85,7 +85,7 @@ def plot_data_cloud_alpha(landmarks, key_save, path_to_save):
                                        y=landmarks[:, 1],
                                        z=landmarks[:, 2],
                                        mode='markers',
-                                       marker=dict(size=2, color='orange'))])
+                                       marker=dict(size=1, color='orange'))])
 
     fig.update_layout(scene=dict(xaxis_title='X, Mpc',
                                  yaxis_title='Y, Mpc',
@@ -148,6 +148,7 @@ def download_prepared_datasets():
         name = 'Galaxies_400K'
     elif input_dataset == 2:
         name = 'Galaxies_1KK'
+    elif input_dataset == 3: return
 
     dataset = Dataset(name)
     dataset.download()
