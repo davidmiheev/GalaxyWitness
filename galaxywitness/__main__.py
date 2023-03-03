@@ -23,6 +23,9 @@ print("\n\t\tTo Infinity... and Beyond!\n\n")
 print("Loading...")
 #################################################
 
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 import numpy as np
 import plotly.graph_objects as go
@@ -38,6 +41,9 @@ from galaxywitness.base_complex import BaseComplex
 from galaxywitness.witness_complex import WitnessComplex
 from galaxywitness.alpha_complex import AlphaComplex
 from galaxywitness.datasets import Dataset
+
+session = PromptSession(history=InMemoryHistory(),
+                        auto_suggest=AutoSuggestFromHistory())
 
 MAX_DIM = 3
 
@@ -133,26 +139,49 @@ def download_prepared_datasets():
     print("Choose one of available datasets:")
     print("\n\t---------- datasets -----------")
     print("\t\033[01;32m[1] <-> Galaxies_400K\033[0m")
-    print("\t\033[01;32m[2] <-> another dataset\033[0m")
+    print("\t\033[01;32m[2] <-> Galaxies_1KK\033[0m")
+    print("\t\033[01;32m[3] <-> Coming soon... \033[0m")
     print("\t--------------------------------\n")
-    input_dataset = int(input(" > Enter number of dataset: "))
+    input_dataset = int(session.prompt(' > Enter number of dataset: ', auto_suggest=AutoSuggestFromHistory()))
     name = ''
     if input_dataset == 1:
         name = 'Galaxies_400K'
-    else:
-        print("will be implemented soon...")
+    elif input_dataset == 2:
+        name = 'Galaxies_1KK'
 
     dataset = Dataset(name)
     dataset.download()
-    
+
+def download_custom():
+    print("Choose your TAP service:")
+    print("\n\t---------- services -----------")
+    print("\t\033[01;32m[1] <-> VOXastro\033[0m")
+    print("\t\033[01;32m[2] <-> Simbad (University of Strasbourg)\033[0m")
+    print("\t\033[01;32m[3] <-> NED (Caltech)\033[0m")
+    print("\t--------------------------------\n")
+    input_service = int(session.prompt(' > Your TAP service: ', auto_suggest=AutoSuggestFromHistory()))
+    input_size = int(session.prompt(' > Size of dataset: ', auto_suggest=AutoSuggestFromHistory()))
+    name = ''
+    if input_service == 1:
+        name = 'rcsed'
+    elif input_service == 2:
+        name = 'simbad'
+    elif input_service == 3:
+        name = 'ned'
+
+    dataset = Dataset(name)
+    dataset.download_via_tap(input_size)
+    # dataset.add_new_dataset("custom", "https://custom.com")
 
 def preconfiguration():
     print(f"\nSystem information: \033[01;32m{os.uname()}\033[0m")
     print("\nPreconfiguration:\n")
-    prepared = input(" > Do you want to use prepared datasets? [y/n]: ")
+    prepared = session.prompt(' > Do you want to use prepared datasets? [y/n]: ', auto_suggest=AutoSuggestFromHistory())
 
     if prepared == "y":
         download_prepared_datasets()
+    else:
+        download_custom()
 
     print("\nChoose file with your data [.csv file]:")
 
@@ -181,7 +210,7 @@ def preconfiguration():
 
 
 def main():
-    doc_key = input(" > Do you want to open documentation? [y/n]: ")
+    doc_key = session.prompt(' > Do you want to open documentation? [y/n]: ', auto_suggest=AutoSuggestFromHistory())
     if doc_key == 'y':
         print("\nOpening documentation...")
         url = 'https://galaxywitness.rtfd.io' #'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
@@ -194,47 +223,49 @@ def main():
         raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m") from e
 
     # readline.set_auto_history(True)
-    n_gal = int(input(f" > Enter number of galaxies [10-{len(df)}]: "))
+    n_gal = int(input(f" > Enter number of galaxies [10...{len(df)}]: "))
 
     type_of_complex = input(" > Enter type of complex [witness/alpha]: ")
 
     if type_of_complex == "witness":
-        n_landmarks = int(input(f" > Enter number of landmarks [10-{n_gal}]: "))
+        n_landmarks = int(input(f" > Enter number of landmarks [10...{n_gal}]: "))
     else:
         n_landmarks = n_gal
 
     # n_jobs = int(input("Enter number of processes: "))
 
-    key_adv = input(" > Advanced configuration? [y/n]: ")
     r_max = 7.5
     first_witness = 0
     tomato_key = 'y'
-    column_names = ['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']
+    column_names = []#['RAJ2000_gal', 'DEJ2000_gal', 'z_gal']
     isomap_eps = 0
     key_plot_cloud = 'y'
     key_anim = 'y'
     key_save = 'n'
     key_complex_type = 'gudhi'
     key_fig = 'mpl'
-    if key_adv == 'y':
-        key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
-        key_anim = input(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ")
-        if key_anim == 'y':
-            key_fig = input(
-                " > What will we use for the animation of a filtered complex? [plotly(more slow, but more cool)/mpl(matplotlib)]: ")
-        key_save = input(" > Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
 
+    key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
+    key_anim = input(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ")
+    if key_anim == 'y':
+        key_fig = input(
+            " > What will we use for the animation of a filtered complex? [plotly(more slow, but more cool)/mpl(matplotlib)]: ")
+    key_save = input(" > Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
+    tomato_key = input(" > Do you want run\033[01;32m tomato\033[0m clustering? [y/n]: ")
+    key_adv = input(" > Advanced configuration? [y/n]: ")
+    if key_adv == 'y':
         key_complex_type = input(" > What type of simplicial complex will we use? [gudhi/custom]: ")
         r_max = float(input(
             " > Enter max value of filtration[\033[01;32m usually \u2264 15\033[0m, the more the slower calculate]: "))
-        tomato_key = input(" > Do you want run\033[01;32m tomato\033[0m clustering? [y/n]: ")
+        if type_of_complex == "witness":
+            first_witness = int(input(f" > Enter first witness [\033[01;32m usually 0\033[0m, range: 0...{len(df) - n_gal}]: "))
         if r_max == -1:
             r_max = None
 
-        if type_of_complex == 'witness':
-            isomap_eps = float(input(" > Enter\033[01;32m isomap\033[0m parameter [0 - don't compute isomap metric]: "))
+        # if type_of_complex == 'witness':
+        #     isomap_eps = float(input(" > Enter\033[01;32m isomap\033[0m parameter [0 - don't compute isomap metric]: "))
 
-    # cosmology = input("Enter cosmology model: ")
+        # cosmology = input("Enter cosmology model: ")
 
     path_to_save = None
     time_list = list(time.localtime())
@@ -248,30 +279,27 @@ def main():
             os.mkdir('imgs')
         os.mkdir(path_to_save)
 
-    if key_adv == 'y':
-        section()
-        print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
+    section()
+    print(f"Info about the handled table: \n\033[01;32m{df.info}\033[0m\n")
 
-        list_names = list(df)
-        pause()
-        print("\nChoosing names of 3 columns for right ascension [RA], declination [Dec] and redshift [z]:")
+    list_names = list(df)
+    pause()
+    print("\nChoosing names of 3 columns for right ascension [ra], declination [dec] and redshift [z]:")
 
-        print("\n\t---------- column names -----------")
-        for elem in list_names:
-            if list_names.index(elem) != 0:
-                print(f"\t\033[01;32m{list_names.index(elem)} <-> {elem}\033[0m")
+    print("\n\t---------- column names -----------")
+    for elem in list_names:
+        if list_names.index(elem) != 0:
+            print(f"\t\033[01;32m[{list_names.index(elem)}] <-> {elem}\033[0m")
 
-        print("\t-----------------------------------\n")
+    print("\t-----------------------------------\n")
 
-        column_nums = []
+    column_nums = []
 
-        for i in range(3):
-            column_nums.append(
-                int(input(f" > Choose number of column #{i + 1} of 3, from list above (column names): ")))
+    for name in ('ra', 'dec', 'z'):
+        column_nums.append(
+            int(input(f" > Choose column for \033[01;32m{name}\033[0m, from list above (column names): ")))
 
-        column_names = [list(df)[column_nums[0]], list(df)[column_nums[1]], list(df)[column_nums[2]]]
-        if type_of_complex == "witness":
-            first_witness = int(input(f" > Enter index of first witness [0-{df[column_names[2]].size - n_gal}]: "))
+    column_names = [list(df)[column_nums[0]], list(df)[column_nums[1]], list(df)[column_nums[2]]]
 
     section()
 

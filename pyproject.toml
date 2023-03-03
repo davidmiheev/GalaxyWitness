@@ -20,6 +20,7 @@ astropy = "*"
 plotly = "*"
 tqdm = "*"
 pyvo = "*"
+prompt-toolkit = "*"
 
 [tool.poetry.group.docs]
 optional = true

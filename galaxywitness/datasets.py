@@ -1,8 +1,9 @@
 import os
+import csv
 import requests
 from tqdm import tqdm
 import pyvo as vo
-import csv
+
 
 class Dataset:
     """
@@ -13,14 +14,22 @@ class Dataset:
 
     """
     inner_names = {"Galaxies_400K": "Galaxies_400K.csv",
-                   "Galaxies_1KK": "Galaxies_1KK.csv"}
+                   "Galaxies_1KK": "Galaxies_1KK.csv",
+                   "rcsed": "rcsed.csv",
+                   "simbad": "simbad.csv",
+                   "ned": "ned.csv"}
+
     addresses = {"Galaxies_400K":
             "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv",
                  "Galaxies_1KK":
-            "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_rcsed_vo.csv"}
+            "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_rcsed_vo.csv",
+                 "rcsed": "http://rcsed-vo.sai.msu.ru/tap/",
+                 "simbad": "http://simbad.u-strasbg.fr/simbad/sim-tap/",
+                 "ned": "http://ned.ipac.caltech.edu/tap/"}
 
     def __init__(self, name: str):
         self.name = name
+        self.url = ''
         if name in self.addresses:
             self.url = self.addresses[name]
             self.dataset_prepared = True
@@ -45,25 +54,37 @@ class Dataset:
             total=total,
             unit='iB',
             unit_scale=True,
-            unit_divisor=1024,
+            unit_divisor=chunk_size,
         ) as bar_:
             for data in resp.iter_content(chunk_size=chunk_size):
-                size = file.write(data)
-                bar_.update(size)
+                bar_.update(file.write(data))
+        
         os.chdir("..")
 
-    def download_pyvo():
-        tap_service_1 = vo.dal.TAPService("http://rcsed-vo.sai.msu.ru/tap/")
-        tap_results_1 = tap_service_1.search("SELECT TOP 100000 OBJID, RA, DEC, Z FROM specphot.rcsed WHERE RA is not NULL AND \
-                                             DEC is not NULL AND Z is not NULL", maxrec = 100000)
+    def download_via_tap(self, size: int = 100000) -> None:
+        """
+        Download current prepared dataset via TAP
+
+        :param size: size of dataset
+        :type size: int
+        """
+        assert self.dataset_prepared
+        tap_service = vo.dal.TAPService(self.url)
+        oid, redshift, table, otype = '', '', '', ''
+        if self.name == "rcsed": oid = "objid"; redshift = "z"; table = "specphot.rcsed"
+        elif self.name == "simbad": oid = "main_id"; redshift = "rvz_redshift"; table = "basic"; otype = "AND otype = 'galaxy..'"
+        elif self.name == "ned": oid = "prefname"; redshift = "z"; table = "objdir"; otype = "AND (pretype = 'G' OR pretype = 'QSO')"
+
+        tap_results = tap_service.run_async(f"SELECT {oid}, ra, dec, {redshift} FROM {table} WHERE ra is not NULL AND \
+                                            dec is not NULL AND {redshift} > 0 {otype}", maxrec = size)
         
-        header = ['objid', 'ra', 'dec', 'z']
+        header = [oid, 'ra', 'dec', redshift]
         rows = []
 
-        for i in range(100000):
+        for i in range(size):
             cur = []
             for j in header:
-                cur.append(tap_results_1[i][j])
+                cur.append(tap_results[i][j])
 
             rows.append(cur)
 
@@ -71,7 +92,7 @@ class Dataset:
             os.mkdir('data')
         os.chdir("./data")
 
-        with open('test.csv', 'w', encoding='UTF8', newline='') as f:
+        with open(self.inner_names[self.name], 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
 
             # write the header
@@ -94,6 +115,9 @@ class Dataset:
         """
         self.inner_names[name] = name + '.csv'
         self.addresses[name] = url
+        print("New dataset added successfully:", name, "from", url)
+        print("You can change current dataset to this one by calling change_dataset_to method")
+        
 
     def change_dataset_to(self, name: str) -> None:
         """
