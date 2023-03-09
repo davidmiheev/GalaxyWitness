@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
     
 setuptools.setup(
     name='galaxywitness',
-    version='0.2.3.1',
+    version='0.2.4',
     license='MIT',
     author='David Miheev',
     author_email='me@davidkorol.life',
     packages=['galaxywitness'],
-    url='https://github.com/DavidOSX/GalaxyWitness',
+    url='https://github.com/davidosx/GalaxyWitness',
     description='Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA',
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -1,4 +1,3 @@
-
 import galaxywitness
 
 project = 'GalaxyWitness'
@@ -12,6 +11,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
     'sphinx_rtd_theme'
 ]
 
