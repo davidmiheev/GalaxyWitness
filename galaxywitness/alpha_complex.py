@@ -207,14 +207,14 @@ class AlphaComplex(BaseComplex):
 
             fig.show()
 
-    def tomato(self):
+    def tomato(self, den_type):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
         max value of filtration.
 
         """
-        t = Tomato()
+        t = Tomato(density_type = den_type)
         t.fit(self.points)
         t.n_clusters_ = self.betti[0]
         return t
