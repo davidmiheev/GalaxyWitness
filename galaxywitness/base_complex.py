@@ -200,7 +200,7 @@ class BaseComplex:
         """
 
     @abstractmethod
-    def tomato(self):
+    def tomato(self, density_type):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
