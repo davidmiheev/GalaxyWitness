@@ -5,6 +5,10 @@ import gudhi
 import numpy as np
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib import colors
+
+import plotly.graph_objects as go
 
 
 class BaseComplex:
@@ -14,11 +18,11 @@ class BaseComplex:
     """
 
     # __slots__ = [
-    #     'landmarks',
+    #     'points',
     #     'witnesses',
     #     'distances',
     #     'distances_isomap',
-    #     'landmarks_idxs',
+    #     'points_idxs',
     #     'isomap_eps',
     #     'simplex_tree',
     #     'simplex_tree_computed',
@@ -26,12 +30,13 @@ class BaseComplex:
     #     'betti'
     # ]
 
-    def __init__(self):
+    def __init__(self, points=None):
         """
         Constuctor
 
         """
         self.simplex_tree = None
+        self.points = points
         self.betti = None
         self.simplex_tree_computed = False
 
@@ -121,6 +126,58 @@ class BaseComplex:
             plt.show()
 
         plt.close()
+
+    def draw_simplicial_complex(self, ax, data, filtration_val):
+        assert self.simplex_tree_computed
+
+        gen = self.simplex_tree.get_filtration()
+
+        for elem in gen:
+                if elem[1] < filtration_val:
+                    if len(elem[0]) == 2:
+                        x = [self.points[elem[0][0]][0], 
+                            self.points[elem[0][1]][0]]
+                        
+                        y = [self.points[elem[0][0]][1], 
+                            self.points[elem[0][1]][1]]
+                        
+                        z = [self.points[elem[0][0]][2], 
+                            self.points[elem[0][1]][2]]
+                        
+                        ax.plot(x, y, z, color=colors.rgb2hex(np.random.rand(3)), linewidth=3)
+
+                        data.append(go.Scatter3d(x=x,
+                                                y=y,
+                                                z=z, 
+                                                marker = dict(size=2, color='orange'),
+                                                line = dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
+                                                
+                    if len(elem[0]) == 3:
+                        x = [self.points[elem[0][0]][0], 
+                        self.points[elem[0][1]][0], 
+                        self.points[elem[0][2]][0]]
+                        
+                        y = [self.points[elem[0][0]][1], 
+                        self.points[elem[0][1]][1], 
+                        self.points[elem[0][2]][1]]
+                        
+                        z = [self.points[elem[0][0]][2], 
+                        self.points[elem[0][1]][2], 
+                        self.points[elem[0][2]][2]]
+
+                        verts = [list(zip(x, y, z))]
+
+                        poly = Poly3DCollection(verts)
+
+                        poly.set_color(colors.rgb2hex(np.random.rand(3)))
+
+                        ax.add_collection3d(poly)
+                        
+                        data.append(go.Mesh3d(x=x, 
+                                              y=y, 
+                                              z=z, 
+                                              color=colors.rgb2hex(np.random.rand(3)), 
+                                              opacity=0.5))
 
     @abstractmethod
     def animate_simplex_tree(self, path_to_save):

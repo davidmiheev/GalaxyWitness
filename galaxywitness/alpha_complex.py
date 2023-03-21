@@ -1,11 +1,7 @@
 import gudhi
 from gudhi.clustering.tomato import Tomato
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-from matplotlib import colors
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import plotly.graph_objects as go
 
 from galaxywitness.base_complex import BaseComplex
@@ -43,11 +39,7 @@ class AlphaComplex(BaseComplex):
         Constuctor
 
         """
-        super().__init__()
-        self.simplex_tree = None
-
-        self.points = points
-        self.simplex_tree_computed = False
+        super().__init__(points)
 
     def compute_simplicial_complex(self, r_max, **kwargs):
         """
@@ -74,7 +66,7 @@ class AlphaComplex(BaseComplex):
         assert self.simplex_tree_computed
 
         gen = self.simplex_tree.get_filtration()
-        verts = []
+        data = []
         gen = list(gen)
         scale = NUMBER_OF_FRAMES / gen[-1][1]
 
@@ -93,42 +85,7 @@ class AlphaComplex(BaseComplex):
             ax.set_ylabel('Y, Mpc')
             ax.set_zlabel('Z, Mpc')
 
-            for element in gen:
-                if element[1] * scale <= num:
-                    if len(element[0]) == 2:
-                        x = [self.points[element[0][0]][0],
-                             self.points[element[0][1]][0]]
-
-                        y = [self.points[element[0][0]][1],
-                             self.points[element[0][1]][1]]
-
-                        z = [self.points[element[0][0]][2],
-                             self.points[element[0][1]][2]]
-
-                        ax.plot(x, y, z)
-
-                    if len(element[0]) == 3:
-                        x = [self.points[element[0][0]][0],
-                             self.points[element[0][1]][0],
-                             self.points[element[0][2]][0]]
-
-                        y = [self.points[element[0][0]][1],
-                             self.points[element[0][1]][1],
-                             self.points[element[0][2]][1]]
-
-                        z = [self.points[element[0][0]][2],
-                             self.points[element[0][1]][2],
-                             self.points[element[0][2]][2]]
-
-                        verts.append(list(zip(x, y, z)))
-
-                        poly = Poly3DCollection(verts)
-
-                        poly.set_color(colors.rgb2hex(np.random.rand(3)))
-
-                        ax.add_collection3d(poly)
-
-                        verts.clear()
+            super().draw_simplicial_complex(ax, data, num/scale)
 
             ax.set_title(f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}")
 
@@ -153,48 +110,12 @@ class AlphaComplex(BaseComplex):
         scale = NUMBER_OF_FRAMES / gen[-1][1]
 
         for num in range(1, NUMBER_OF_FRAMES + 1):
-            data = [go.Scatter3d(x=self.points[:MAX_N_PLOT, 0],
-                                 y=self.points[:MAX_N_PLOT, 1],
-                                 z=self.points[:MAX_N_PLOT, 2],
-                                 mode='markers',
-                                 marker=dict(size=2, color='orange'))]
+            fig = plt.figure()
+            ax = fig.add_subplot(projection = "3d")
+            
+            data = []
 
-            for element in gen:
-                if element[1] * scale <= num:
-                    if len(element[0]) == 2:
-                        x = [self.points[element[0][0]][0],
-                             self.points[element[0][1]][0]]
-
-                        y = [self.points[element[0][0]][1],
-                             self.points[element[0][1]][1]]
-
-                        z = [self.points[element[0][0]][2],
-                             self.points[element[0][1]][2]]
-
-                        data.append(go.Scatter3d(x=x,
-                                                 y=y,
-                                                 z=z,
-                                                 marker=dict(size=2, color='orange'),
-                                                 line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
-
-                    if len(element[0]) == 3:
-                        x = [self.points[element[0][0]][0],
-                             self.points[element[0][1]][0],
-                             self.points[element[0][2]][0]]
-
-                        y = [self.points[element[0][0]][1],
-                             self.points[element[0][1]][1],
-                             self.points[element[0][2]][1]]
-
-                        z = [self.points[element[0][0]][2],
-                             self.points[element[0][1]][2],
-                             self.points[element[0][2]][2]]
-
-                        data.append(go.Mesh3d(x=x,
-                                              y=y,
-                                              z=z,
-                                              color=colors.rgb2hex(np.random.rand(3)),
-                                              opacity=0.8))
+            super().draw_simplicial_complex(ax, data, num/scale)
 
             fig = go.Figure(data=data)
 
