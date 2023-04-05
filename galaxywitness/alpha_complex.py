@@ -1,3 +1,4 @@
+import pytest
 import gudhi
 from gudhi.clustering.tomato import Tomato
 
@@ -5,6 +6,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 from galaxywitness.base_complex import BaseComplex
+import tests as ptest
 
 # hard-coded
 MAX_N_PLOT = 10000
@@ -138,4 +140,5 @@ class AlphaComplex(BaseComplex):
         t = Tomato(density_type = den_type)
         t.fit(self.points)
         t.n_clusters_ = self.betti[0]
+        ptest.clusterization(t.n_clusters_)
         return t
