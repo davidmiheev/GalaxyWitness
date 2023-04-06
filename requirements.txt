@@ -10,3 +10,4 @@ sphinx-rtd-theme
 tqdm
 pyvo
 prompt_toolkit
+pytest

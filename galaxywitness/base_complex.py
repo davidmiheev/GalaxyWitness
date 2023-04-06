@@ -1,3 +1,4 @@
+import pytest
 from abc import abstractmethod
 
 import gudhi
@@ -7,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib import colors
+import tests as ptest
 
 import plotly.graph_objects as go
 
@@ -77,6 +79,7 @@ class BaseComplex:
                 if e[1] - e[0] > magnitude:
                     betti[j] += 1
         self.betti = betti
+        ptest.betti_array(self.betti)
         return betti
 
     def get_diagram(self, show=False, path_to_save=None):
