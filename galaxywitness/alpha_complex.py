@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 from galaxywitness.base_complex import BaseComplex
-import tests as ptest
+from galaxywitness.tests import betti_array
+from galaxywitness.tests import clusterization
 
 # hard-coded
 MAX_N_PLOT = 10000
@@ -138,7 +139,10 @@ class AlphaComplex(BaseComplex):
 
         """
         t = Tomato(density_type = den_type)
-        t.fit(self.points)
+        if den_type == 'manual':
+            t.fit(self.points, weights=self.density_class.foo(self.points))
+        else:
+            t.fit(self.points)
         t.n_clusters_ = self.betti[0]
-        ptest.clusterization(t.n_clusters_)
+        clusterization(t.n_clusters_)
         return t

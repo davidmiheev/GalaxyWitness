@@ -1,5 +1,6 @@
 import math
 import os
+import pytest
 
 import multiprocessing as mp
 from joblib import Parallel, delayed
@@ -21,6 +22,7 @@ from gudhi.clustering.tomato import Tomato
 from sklearn.metrics import pairwise_distances
 
 from galaxywitness.base_complex import BaseComplex
+from galaxywitness.tests import clusterization
 
 # hard-coded
 #MAX_DIST_INIT = 100000
@@ -359,8 +361,12 @@ class WitnessComplex(BaseComplex):
         
         """
         t = Tomato(density_type = den_type)
-        t.fit(self.witnesses)
+        if den_type == 'manual':
+            t.fit(self.points, weights=self.density_class.foo(self.points))
+        else:
+            t.fit(self.points)
         t.n_clusters_ = self.betti[0]
+        clusterization(t.n_clusters_)
         return t
         
         
