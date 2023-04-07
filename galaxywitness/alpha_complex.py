@@ -131,14 +131,15 @@ class AlphaComplex(BaseComplex):
 
             fig.show()
 
-    def tomato(self, den_type):
+    def tomato(self, den_type, graph):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
         max value of filtration.
 
         """
-        t = Tomato(density_type = den_type)
+        self.graph_type = graph
+        t = Tomato(density_type = den_type, graph_type=self.graph_type)
         if den_type == 'manual':
             t.fit(self.points, weights=self.density_class.foo(self.points))
         else:

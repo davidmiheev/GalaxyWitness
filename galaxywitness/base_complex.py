@@ -43,6 +43,7 @@ class BaseComplex:
         self.betti = None
         self.simplex_tree_computed = False
         self.density_class = ManualDensity()
+        self.graph_type = 'knn'
 
     @abstractmethod
     def compute_simplicial_complex(self, *args):
@@ -205,7 +206,7 @@ class BaseComplex:
         """
 
     @abstractmethod
-    def tomato(self, density_type):
+    def tomato(self, density_type, graph):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
