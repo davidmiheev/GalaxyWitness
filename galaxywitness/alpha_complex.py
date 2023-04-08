@@ -1,13 +1,11 @@
-import pytest
 import gudhi
 from gudhi.clustering.tomato import Tomato
 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import numpy as np
 
 from galaxywitness.base_complex import BaseComplex
-from galaxywitness.tests import betti_array
-from galaxywitness.tests import clusterization
 
 # hard-coded
 MAX_N_PLOT = 10000
@@ -131,6 +129,27 @@ class AlphaComplex(BaseComplex):
 
             fig.show()
 
+    def get_adjacency_list(self):
+        alpha_complex = gudhi.AlphaComplex(self.points)
+        simplex_tree = alpha_complex.create_simplex_tree()
+
+        adjacency_list = simplex_tree.get_skeleton(1)
+        tmp = []
+        for i in range(len(self.points)):
+            tmp.append(set())
+        for elem in adjacency_list:
+            if len(elem[0]) == 1:
+                continue
+            tmp[elem[0][0]].add(elem[0][1])
+            tmp[elem[0][1]].add(elem[0][0])
+        
+        adjacency_list = []
+        for elem in tmp:
+            adjacency_list.append(list(elem))
+
+        return adjacency_list
+
+
     def tomato(self, den_type, graph):
         """
         ToMATo clustering with automatic choice of number of clusters.
@@ -140,10 +159,11 @@ class AlphaComplex(BaseComplex):
         """
         self.graph_type = graph
         t = Tomato(density_type = den_type, graph_type=self.graph_type)
-        if den_type == 'manual':
+        if den_type == 'manual' and self.graph_type != 'manual':
             t.fit(self.points, weights=self.density_class.foo(self.points))
+        elif den_type == 'manual' and self.graph_type == 'manual':
+            t.fit(self.get_adjacency_list(), weights=self.density_class.foo(self.points))
         else:
             t.fit(self.points)
         t.n_clusters_ = self.betti[0]
-        clusterization(t.n_clusters_)
         return t
