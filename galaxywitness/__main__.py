@@ -108,10 +108,10 @@ def draw_diagrams_and_animation(fil_complex, key_anim, path_to_save, key_fig):
     fil_complex.get_barcode(show=True, path_to_save=path_to_save)
 
 
-def clustering(fil_complex, points, path_to_save, density_type_):
+def clustering(fil_complex, points, path_to_save, density_type_, graph_type_):
     print("ToMATo clustering...")
     t = time.time()
-    tomato = fil_complex.tomato(den_type=density_type_, )
+    tomato = fil_complex.tomato(den_type=density_type_, graph=graph_type_)
     t = time.time() - t
 
     # tomato.plot_diagram()
@@ -394,14 +394,18 @@ def main():
     section()
 
     if tomato_key == 'y':
-        manual_dt = input("> Do you want to use manual density function for clustering? [y/n]")
+        manual_dt = input("> Do you want to use manual density function for clustering? [y/n] ")
         den_type = "logDTM"
+        graph_type_ = 'knn'
         if manual_dt == "y":
             den_type = 'manual'
+            graph_input = input("> Do you want to use manual graph for clustering? [y/n] ")
+            if graph_input == 'y':
+                graph_type_ = 'manual'
         if type_of_complex == "witness":
-            clustering(complex_, complex_.witnesses, path_to_save, den_type)
+            clustering(complex_, complex_.witnesses, path_to_save, den_type, graph_type_)
         else:
-            clustering(complex_, complex_.points, path_to_save, den_type)
+            clustering(complex_, complex_.points, path_to_save, den_type, graph_type_)
 
 
 if __name__ == '__main__':

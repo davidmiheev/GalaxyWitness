@@ -1,4 +1,3 @@
-import pytest
 from abc import abstractmethod
 
 import gudhi
@@ -8,7 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib import colors
-from galaxywitness.tests import betti_array
 from galaxywitness.manual_density import ManualDensity
 
 import plotly.graph_objects as go
@@ -43,6 +41,7 @@ class BaseComplex:
         self.betti = None
         self.simplex_tree_computed = False
         self.density_class = ManualDensity()
+        self.graph_type = 'knn'
 
     @abstractmethod
     def compute_simplicial_complex(self, *args):
@@ -81,7 +80,6 @@ class BaseComplex:
                 if e[1] - e[0] > magnitude:
                     betti[j] += 1
         self.betti = betti
-        betti_array(self.betti)
         return betti
 
     def get_diagram(self, show=False, path_to_save=None):
@@ -184,6 +182,13 @@ class BaseComplex:
                                               color=colors.rgb2hex(np.random.rand(3)), 
                                               opacity=0.5))
 
+
+    @abstractmethod
+    def get_adjacency_list(self, points):
+        """
+        Get adjacency list for vertices in Alpha graph
+        """
+    
     @abstractmethod
     def animate_simplex_tree(self, path_to_save):
         """
@@ -205,7 +210,7 @@ class BaseComplex:
         """
 
     @abstractmethod
-    def tomato(self, density_type):
+    def tomato(self, density_type, graph):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
