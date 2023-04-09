@@ -40,6 +40,7 @@ from astropy import units as u
 from galaxywitness.base_complex import BaseComplex
 from galaxywitness.witness_complex import WitnessComplex
 from galaxywitness.alpha_complex import AlphaComplex
+from galaxywitness.rips_complex import RipsComplex
 from galaxywitness.datasets import Dataset
 
 session = PromptSession(history=InMemoryHistory(),
@@ -226,7 +227,7 @@ def main():
     # readline.set_auto_history(True)
     n_gal = int(input(f" > Enter number of galaxies [10...{len(df)}]: "))
 
-    type_of_complex = input(" > Enter type of complex [witness/alpha]: ")
+    type_of_complex = input(" > Enter type of complex [witness/alpha/rips]: ")
 
     if type_of_complex == "witness":
         n_landmarks = int(input(f" > Enter number of landmarks [10...{n_gal}]: "))
@@ -245,6 +246,8 @@ def main():
     key_save = 'n'
     key_complex_type = 'gudhi'
     key_fig = 'mpl'
+    max_edge_length = np.inf
+    sparse = None
 
     key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
     key_anim = input(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ")
@@ -262,6 +265,11 @@ def main():
             first_witness = int(input(f" > Enter first witness [\033[01;32m usually 0\033[0m, range: 0...{len(df) - n_gal}]: "))
         if r_max == -1:
             r_max = None
+        if type_of_complex == "rips":
+            max_edge_length = float(input(f" > Enter maximal edge length (Rips value): "))
+            sparse = float(input(f" > Enter 'sparse' parameter to build sparse Rips or -1: "))
+            if sparse == -1:
+                sparse = None
 
         # if type_of_complex == 'witness':
         #     isomap_eps = float(input(" > Enter\033[01;32m isomap\033[0m parameter [0 - don't compute isomap metric]: "))
@@ -356,9 +364,12 @@ def main():
     if type_of_complex == "witness":
         complex_.__class__ = WitnessComplex
         complex_.__init__(landmarks, witnesses, landmarks_idxs, isomap_eps=isomap_eps)
-    else:
+    elif type_of_complex == "alpha":
         complex_.__class__ = AlphaComplex
         complex_.__init__(points=landmarks)
+    else:
+        complex_.__class__ = RipsComplex
+        complex_.__init__(points=landmarks, max_edge_length=max_edge_length, sparse=sparse)
 
     complex_.compute_simplicial_complex(d_max=MAX_DIM, r_max=r_max, custom=(key_complex_type == 'custom'))
 
