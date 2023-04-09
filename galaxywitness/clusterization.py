@@ -24,6 +24,7 @@ cost = o1.compare_clusterization(o2)
 print(cost)
 """
 
+
 def center_of_mass_diff(c1, c2):
     sum_square = (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2
     dist = np.sqrt(sum_square)
@@ -32,29 +33,36 @@ def center_of_mass_diff(c1, c2):
 
 
 def distances_matrix(centers1, centers2):
-    a = np.zeros((len(centers1) + 1, len(centers2) + 1))
+    """
+    matrix is supposed to have a shape (n, m), n <= m
+    """
+    n_cntrs = centers2 if len(centers1) > len(centers2) else centers1
+    m_cntrs = centers1 if len(centers1) > len(centers2) else centers2
+    a = np.zeros((len(n_cntrs) + 1, len(m_cntrs) + 1))
     for i in range(1, a.shape[0]):
         for j in range(1, a.shape[1]):
-            a[i][j] = center_of_mass_diff(centers1[i - 1], centers2[j - 1])
+            a[i][j] = center_of_mass_diff(n_cntrs[i - 1], m_cntrs[j - 1])
     return a
 
 
 def Hungarian(a):
-    u = [0] * (a.shape[1])
-    v = [0] * (a.shape[0])
-    matches = [0] * (a.shape[1])
-    way = [0] * (a.shape[1])
-    for i in range(1, a.shape[0]):
+    n = a.shape[0] - 1  # истинные размеры матрицы расстояний, a.shape учитывает фиктивные нулевые строку и столбец
+    m = a.shape[1] - 1
+    u = [0] * (n + 1)
+    v = [0] * (m + 1)
+    matches = [0] * (m + 1)
+    way = [0] * (m + 1)
+    for i in range(1, n + 1):
         matches[0] = i
         j_free = 0
-        minv = [np.inf] * (a.shape[1])
-        used = [False] * (a.shape[1])
+        minv = [np.inf] * (m + 1)
+        used = [False] * (m + 1)
         while matches[j_free] != 0:
             used[j_free] = True
             i_free = matches[j_free]
             delta = np.inf
             j1 = 0
-            for j in range(1, a.shape[1]):
+            for j in range(1, m + 1):
                 if not used[j]:
                     cur = a[i_free][j] - u[i_free] - v[j]
                     if cur < minv[j]:
@@ -63,7 +71,7 @@ def Hungarian(a):
                     if minv[j] < delta:
                         delta = minv[j]
                         j1 = j
-            for j in range(0, a.shape[1]):
+            for j in range(0, m + 1):
                 if used[j]:
                     u[matches[j]] += delta
                     v[j] -= delta
@@ -122,8 +130,6 @@ class Clusterization:
         return self.centers_of_mass
 
     def compare_clusterization(self, other):
-        if self.n_clusters != other.n_clusters:
-            raise Exception("Cannot compare clusterizations with different sizes")
         if not self.centers_of_mass_computed:
             self.center_of_mass()
         if not other.centers_of_mass_computed:
