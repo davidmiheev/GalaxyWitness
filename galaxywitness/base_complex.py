@@ -184,7 +184,7 @@ class BaseComplex:
 
 
     @abstractmethod
-    def get_adjacency_list(self, points):
+    def get_adjacency_list(self):
         """
         Get adjacency list for vertices in Alpha graph
         """
