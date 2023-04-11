@@ -18,7 +18,7 @@ RipsComplex
 AlphaComplex
 -------------
 
-.. autoclass:: galaxywitness.alpha_complex.WitnessComplex
+.. autoclass:: galaxywitness.alpha_complex.AlphaComplex
 	 :members:
 
 WitnessComplex
