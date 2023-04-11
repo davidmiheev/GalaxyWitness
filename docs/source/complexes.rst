@@ -7,18 +7,18 @@ wrapper around the `GUDHI <https://gudhi.inria.fr/>`_ library. It is recommended
 BaseComplex
 -------------
 
-.. autoclass:: galaxywitness.witness_complex.BaseComplex
+.. autoclass:: galaxywitness.base_complex.BaseComplex
 	 :members:
 
 RipsComplex
 ------------
-.. autoclass:: galaxywitness.witness_complex.RipsComplex
+.. autoclass:: galaxywitness.rips_complex.RipsComplex
 	 :members:
 
 AlphaComplex
 -------------
 
-.. autoclass:: galaxywitness.witness_complex.WitnessComplex
+.. autoclass:: galaxywitness.alpha_complex.WitnessComplex
 	 :members:
 
 WitnessComplex
