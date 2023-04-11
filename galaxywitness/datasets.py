@@ -13,21 +13,22 @@ class Dataset:
     :type name: str
 
     """
-    inner_names = {"Galaxies_400K": "Galaxies_400K.csv",
-                   "Galaxies_1KK": "Galaxies_1KK.csv",
-                   "rcsed": "rcsed.csv",
-                   "simbad": "simbad.csv",
-                   "ned": "ned.csv"}
-
-    addresses = {"Galaxies_400K":
-            "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv",
-                 "Galaxies_1KK":
-            "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_rcsed_vo.csv",
-                 "rcsed": "http://rcsed-vo.sai.msu.ru/tap/",
-                 "simbad": "http://simbad.u-strasbg.fr/simbad/sim-tap/",
-                 "ned": "http://ned.ipac.caltech.edu/tap/"}
 
     def __init__(self, name: str):
+        self.inner_names = {"Galaxies_400K": "Galaxies_400K.csv",
+                            "Galaxies_1KK": "Galaxies_1KK.csv",
+                            "rcsed": "rcsed.csv",
+                            "simbad": "simbad.csv",
+                            "ned": "ned.csv"}
+
+        self.addresses = {"Galaxies_400K":
+                "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_glist_s.csv",
+                          "Galaxies_1KK":
+                "https://raw.githubusercontent.com/Arrrtemiron/galaxy_witness_datasets/main/result_rcsed_vo.csv",
+                          "rcsed": "http://rcsed-vo.sai.msu.ru/tap/",
+                          "simbad": "http://simbad.u-strasbg.fr/simbad/sim-tap/",
+                          "ned": "http://ned.ipac.caltech.edu/tap/"}
+
         self.name = name
         self.url = ''
         if name in self.addresses:

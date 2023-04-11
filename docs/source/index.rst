@@ -16,7 +16,13 @@ Welcome to GalaxyWitness's documentation!
 
 GalaxyWitness is written in Python and a combination of modules `GUDHI <https://gudhi.inria.fr>`_ and `Astropy <https://www.astropy.org>`_.
 
-The astronomical routines completely fall on the module Astropy. It is responsible for processing observational data and performing transformations necessary to build a point cloud to which the topological data analysis methods are applied. And if we discard the astronomical block, then the module can be considered a program for topological analysis of the big data. To do this, the witness complex filtration is used, which is much smaller than the classical Rips filtration on the massive point cloud (the number of galaxies on which we tested this module: :math:`\sim400000`). We also use a powerful data structure: a simplex tree that efficiently stores collections of simplicial complexes.
+The astronomical routines completely fall on the module Astropy. 
+It is responsible for processing observational data and performing transformations necessary to build a point cloud to which the topological data analysis methods are applied. 
+And if we discard the astronomical block, then the module can be considered a program for topological analysis of the big data. 
+To do this, the witness complex filtration is used, which is much smaller than the classical Rips filtration on the massive point cloud. 
+We also use a powerful data structure: a simplex tree that efficiently stores collections of simplicial complexes.
+
+The main purpose of the program is to find the most significant topological features in the data.
 
 Indices and tables
 ==================

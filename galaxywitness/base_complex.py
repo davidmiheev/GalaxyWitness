@@ -1,20 +1,24 @@
 from abc import abstractmethod
-
-import gudhi
+from collections import defaultdict
 
 import numpy as np
+import gudhi
+from gudhi.clustering.tomato import Tomato
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib import colors
+import plotly.graph_objects as go
+
 from galaxywitness.manual_density import ManualDensity
 
-import plotly.graph_objects as go
+MAX_N_PLOT = 10000
+NUMBER_OF_FRAMES = 6
 
 
 class BaseComplex:
     """
-    Base class for any type of Complexes
+    Base class for any type of complexes
 
     """
 
@@ -41,7 +45,7 @@ class BaseComplex:
         self.betti = None
         self.simplex_tree_computed = False
         self.density_class = ManualDensity()
-        self.graph_type = 'knn'
+        # self.graph_type = 'knn'
 
     @abstractmethod
     def compute_simplicial_complex(self, *args):
@@ -130,69 +134,126 @@ class BaseComplex:
 
         plt.close()
 
-    def draw_simplicial_complex(self, ax, data, filtration_val):
+    def draw_simplicial_complex(self, num, filtration_val, backend, path_to_save=None):
         assert self.simplex_tree_computed
+
+        data = []
+        if backend == 'mpl':
+            fig = plt.figure()
+            ax = fig.add_subplot(projection="3d")
+
+            ax.scatter3D(self.points[:MAX_N_PLOT, 0],
+                    self.points[:MAX_N_PLOT, 1],
+                    self.points[:MAX_N_PLOT, 2],
+                    s=2,
+                    linewidths=1,
+                    color='C1')
+
+            ax.set_xlabel('X, Mpc')
+            ax.set_ylabel('Y, Mpc')
+            ax.set_zlabel('Z, Mpc')
+        elif backend == 'plotly':
+            data.append(go.Scatter3d(x=self.points[:MAX_N_PLOT, 0],
+                                    y=self.points[:MAX_N_PLOT, 1],
+                                    z=self.points[:MAX_N_PLOT, 2], 
+                                    marker = dict(size=1, color='blue')))
 
         gen = self.simplex_tree.get_filtration()
 
-        for elem in gen:
-                if elem[1] < filtration_val:
-                    if len(elem[0]) == 2:
-                        x = [self.points[elem[0][0]][0], 
-                            self.points[elem[0][1]][0]]
-                        
-                        y = [self.points[elem[0][0]][1], 
-                            self.points[elem[0][1]][1]]
-                        
-                        z = [self.points[elem[0][0]][2], 
-                            self.points[elem[0][1]][2]]
-                        
+        for edge in gen:
+            if edge[1] < filtration_val:
+                if len(edge[0]) == 2:
+                    x = [self.points[edge[0][0]][0],
+                        self.points[edge[0][1]][0]]
+
+                    y = [self.points[edge[0][0]][1],
+                        self.points[edge[0][1]][1]]
+
+                    z = [self.points[edge[0][0]][2],
+                        self.points[edge[0][1]][2]]
+                    
+                    if backend == 'mpl':
                         ax.plot(x, y, z, color=colors.rgb2hex(np.random.rand(3)), linewidth=3)
-
+                    elif backend == 'plotly':
                         data.append(go.Scatter3d(x=x,
-                                                y=y,
-                                                z=z, 
-                                                marker = dict(size=2, color='orange'),
-                                                line = dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
-                                                
-                    if len(elem[0]) == 3:
-                        x = [self.points[elem[0][0]][0], 
-                        self.points[elem[0][1]][0], 
-                        self.points[elem[0][2]][0]]
-                        
-                        y = [self.points[elem[0][0]][1], 
-                        self.points[elem[0][1]][1], 
-                        self.points[elem[0][2]][1]]
-                        
-                        z = [self.points[elem[0][0]][2], 
-                        self.points[elem[0][1]][2], 
-                        self.points[elem[0][2]][2]]
+                                            y=y,
+                                            z=z,
+                                            marker=dict(size=2, color='orange'),
+                                            line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
 
-                        verts = [list(zip(x, y, z))]
+                if len(edge[0]) == 3:
+                    x = [self.points[edge[0][0]][0], 
+                        self.points[edge[0][1]][0], 
+                        self.points[edge[0][2]][0]]
 
+                    y = [self.points[edge[0][0]][1], 
+                        self.points[edge[0][1]][1], 
+                        self.points[edge[0][2]][1]]
+
+                    z = [self.points[edge[0][0]][2], 
+                        self.points[edge[0][1]][2], 
+                        self.points[edge[0][2]][2]]
+
+                    verts = [list(zip(x, y, z))]
+
+                    if backend == 'mpl':
                         poly = Poly3DCollection(verts)
 
                         poly.set_color(colors.rgb2hex(np.random.rand(3)))
 
                         ax.add_collection3d(poly)
-                        
-                        data.append(go.Mesh3d(x=x, 
-                                              y=y, 
-                                              z=z, 
-                                              color=colors.rgb2hex(np.random.rand(3)), 
-                                              opacity=0.5))
+                    elif backend == 'plotly':
+                        data.append(go.Mesh3d(x=x,
+                                         y=y,
+                                         z=z,
+                                         color=colors.rgb2hex(np.random.rand(3)), opacity=0.5))
+                    
+        if backend == 'mpl':
+            ax.set_title(f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}")
+
+            if path_to_save is not None:
+                plt.savefig(path_to_save + f"/picture{num}.png", dpi=200)
+
+            plt.show()
+        elif backend == 'plotly':
+            fig = go.Figure(data=data)
+            fig.update_layout(title=f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}",
+                              scene=dict(
+                              xaxis_title='X, Mpc',
+                              yaxis_title='Y, Mpc',
+                              zaxis_title='Z, Mpc'),
+                              width=1000,
+                              margin=dict(r=20, l=10, b=10, t=10))
+
+            if path_to_save is not None:
+                fig.write_image(path_to_save + f"/picture{num}.pdf")
+
+            fig.show()
 
 
-    @abstractmethod
-    def get_adjacency_list(self):
+
+    def get_adjacency_list(self, max_fil_val):
         """
-        Get adjacency list for vertices in Alpha graph
+        Get adjacency list for vertices in 1-skeleton of filtrated simplicial complex
         """
+        assert self.simplex_tree_computed
+        graph = defaultdict(list)
+        for edge, val in self.simplex_tree.get_skeleton(1):
+            if val > max_fil_val or len(edge) != 2:
+                continue
+            graph[edge[0]] += [edge[1]]
+            graph[edge[1]] += [edge[0]]
+
+        adj_list = []
+        for vertex in range(self.points.shape[0]):
+            adj_list.append(graph[vertex])
+
+        return adj_list
     
     @abstractmethod
     def animate_simplex_tree(self, path_to_save):
         """
-        Draw animation of filtration (powered by matplotlib)
+        Draw animation of filtrated simplicial complex (powered by matplotlib)
 
         :param path_to_save: place, where we are saving files
         :type  path_to_save: str
@@ -203,17 +264,24 @@ class BaseComplex:
     @abstractmethod
     def animate_simplex_tree_plotly(self, path_to_save):
         """
-        Draw animation of filtration (powered by plotly)
+        Draw animation of filtrated simplicial complex (powered by plotly)
 
         :param path_to_save: place, where we are saving files
         :type  path_to_save: str
         """
 
-    @abstractmethod
-    def tomato(self, density_type, graph):
+    
+    def tomato(self, max_fil_val=7.5):
         """
         ToMATo clustering with automatic choice of number of clusters.
         Hence, clustering depends on filtered complex construction and
         max value of filtration.
 
         """
+        assert self.simplex_tree_computed
+        tomato_clustering = Tomato(graph_type='manual', density_type='manual')
+        tomato_clustering.fit(self.get_adjacency_list(max_fil_val), weights=self.density_class.random_density(self.points))
+        tomato_clustering.n_clusters_ = self.betti[0]
+        return tomato_clustering
+
+

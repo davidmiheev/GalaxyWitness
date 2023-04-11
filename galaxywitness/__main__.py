@@ -109,10 +109,10 @@ def draw_diagrams_and_animation(fil_complex, key_anim, path_to_save, key_fig):
     fil_complex.get_barcode(show=True, path_to_save=path_to_save)
 
 
-def clustering(fil_complex, points, path_to_save, density_type_, graph_type_):
+def clustering(fil_complex, points, r_max, path_to_save):
     print("ToMATo clustering...")
     t = time.time()
-    tomato = fil_complex.tomato(den_type=density_type_, graph=graph_type_)
+    tomato = fil_complex.tomato(r_max)
     t = time.time() - t
 
     # tomato.plot_diagram()
@@ -141,7 +141,7 @@ def download_prepared_datasets():
     print("\n\t---------- datasets -----------")
     print("\t\033[01;32m[1] <-> Galaxies_400K\033[0m")
     print("\t\033[01;32m[2] <-> Galaxies_1KK\033[0m")
-    print("\t\033[01;32m[3] <-> Coming soon... \033[0m")
+    print("\t\033[01;32m[3] <-> go to ./data folder \033[0m")
     print("\t--------------------------------\n")
     input_dataset = int(session.prompt(' > Enter number of dataset: ', auto_suggest=AutoSuggestFromHistory()))
     name = ''
@@ -227,7 +227,19 @@ def main():
     # readline.set_auto_history(True)
     n_gal = int(input(f" > Enter number of galaxies [10...{len(df)}]: "))
 
-    type_of_complex = input(" > Enter type of complex [witness/alpha/rips]: ")
+    print("Choose type of complex:")
+    print("\n\t---------- complexes -----------")
+    print("\t\033[01;32m[1] <-> Vietoris-Rips complex\033[0m")
+    print("\t\033[01;32m[2] <-> Alpha complex\033[0m")
+    print("\t\033[01;32m[3] <-> Witness complex\033[0m")
+    print("\t--------------------------------\n")
+    type_of_complex = int(session.prompt(" > Your complex: ", auto_suggest=AutoSuggestFromHistory()))
+    if type_of_complex == 1:
+        type_of_complex = "rips"
+    elif type_of_complex == 2:
+        type_of_complex = "alpha"
+    elif type_of_complex == 3:
+        type_of_complex = "witness"
 
     if type_of_complex == "witness":
         n_landmarks = int(input(f" > Enter number of landmarks [10...{n_gal}]: "))
@@ -246,7 +258,7 @@ def main():
     key_save = 'n'
     key_complex_type = 'gudhi'
     key_fig = 'mpl'
-    max_edge_length = np.inf
+    # max_edge_length = np.inf
     sparse = None
 
     key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
@@ -266,8 +278,7 @@ def main():
         if r_max == -1:
             r_max = None
         if type_of_complex == "rips":
-            max_edge_length = float(input(f" > Enter maximal edge length (Rips value): "))
-            sparse = float(input(f" > Enter 'sparse' parameter to build sparse Rips or -1: "))
+            sparse = float(input(" > Enter 'sparse' parameter to build sparse Rips or -1: "))
             if sparse == -1:
                 sparse = None
 
@@ -369,7 +380,7 @@ def main():
         complex_.__init__(points=landmarks)
     else:
         complex_.__class__ = RipsComplex
-        complex_.__init__(points=landmarks, max_edge_length=max_edge_length, sparse=sparse)
+        complex_.__init__(points=landmarks, max_edge_length=r_max, sparse=sparse)
 
     complex_.compute_simplicial_complex(d_max=MAX_DIM, r_max=r_max, custom=(key_complex_type == 'custom'))
 
@@ -405,18 +416,9 @@ def main():
     section()
 
     if tomato_key == 'y':
-        manual_dt = input("> Do you want to use manual density function for clustering? [y/n] ")
-        den_type = "logDTM"
-        graph_type_ = 'knn'
-        if manual_dt == "y":
-            den_type = 'manual'
-            graph_input = input("> Do you want to use manual graph for clustering? [y/n] ")
-            if graph_input == 'y':
-                graph_type_ = 'manual'
-        if type_of_complex == "witness":
-            clustering(complex_, complex_.witnesses, path_to_save, den_type, graph_type_)
-        else:
-            clustering(complex_, complex_.points, path_to_save, den_type, graph_type_)
+        if type_of_complex != "witness":
+            # clustering(complex_, complex_.witnesses, path_to_save, den_type, graph_type_)
+            clustering(complex_, complex_.points, r_max, path_to_save)
 
 
 if __name__ == '__main__':
