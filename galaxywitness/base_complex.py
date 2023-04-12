@@ -145,7 +145,7 @@ class BaseComplex:
             ax.scatter3D(self.points[:MAX_N_PLOT, 0],
                     self.points[:MAX_N_PLOT, 1],
                     self.points[:MAX_N_PLOT, 2],
-                    s=2,
+                    s=1,
                     linewidths=1,
                     color='C1')
 
@@ -155,7 +155,8 @@ class BaseComplex:
         elif backend == 'plotly':
             data.append(go.Scatter3d(x=self.points[:MAX_N_PLOT, 0],
                                     y=self.points[:MAX_N_PLOT, 1],
-                                    z=self.points[:MAX_N_PLOT, 2], 
+                                    z=self.points[:MAX_N_PLOT, 2],
+                                    mode='markers',
                                     marker = dict(size=1, color='blue')))
 
         gen = self.simplex_tree.get_filtration()
@@ -171,27 +172,27 @@ class BaseComplex:
 
                     z = [self.points[edge[0][0]][2],
                         self.points[edge[0][1]][2]]
-                    
+
                     if backend == 'mpl':
-                        ax.plot(x, y, z, color=colors.rgb2hex(np.random.rand(3)), linewidth=3)
+                        ax.plot(x, y, z, color=colors.rgb2hex(np.random.rand(3)))
                     elif backend == 'plotly':
                         data.append(go.Scatter3d(x=x,
                                             y=y,
                                             z=z,
-                                            marker=dict(size=2, color='orange'),
+                                            marker=dict(size=1, color='blue'),
                                             line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
 
                 if len(edge[0]) == 3:
-                    x = [self.points[edge[0][0]][0], 
-                        self.points[edge[0][1]][0], 
+                    x = [self.points[edge[0][0]][0],
+                        self.points[edge[0][1]][0],
                         self.points[edge[0][2]][0]]
 
-                    y = [self.points[edge[0][0]][1], 
-                        self.points[edge[0][1]][1], 
+                    y = [self.points[edge[0][0]][1],
+                        self.points[edge[0][1]][1],
                         self.points[edge[0][2]][1]]
 
-                    z = [self.points[edge[0][0]][2], 
-                        self.points[edge[0][1]][2], 
+                    z = [self.points[edge[0][0]][2],
+                        self.points[edge[0][1]][2],
                         self.points[edge[0][2]][2]]
 
                     verts = [list(zip(x, y, z))]
@@ -204,10 +205,10 @@ class BaseComplex:
                         ax.add_collection3d(poly)
                     elif backend == 'plotly':
                         data.append(go.Mesh3d(x=x,
-                                         y=y,
-                                         z=z,
-                                         color=colors.rgb2hex(np.random.rand(3)), opacity=0.5))
-                    
+                                             y=y,
+                                             z=z,
+                                             color=colors.rgb2hex(np.random.rand(3)), opacity=0.5))
+
         if backend == 'mpl':
             ax.set_title(f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}")
 
@@ -221,9 +222,7 @@ class BaseComplex:
                               scene=dict(
                               xaxis_title='X, Mpc',
                               yaxis_title='Y, Mpc',
-                              zaxis_title='Z, Mpc'),
-                              width=1000,
-                              margin=dict(r=20, l=10, b=10, t=10))
+                              zaxis_title='Z, Mpc'))
 
             if path_to_save is not None:
                 fig.write_image(path_to_save + f"/picture{num}.pdf")
@@ -249,7 +248,7 @@ class BaseComplex:
             adj_list.append(graph[vertex])
 
         return adj_list
-    
+
     @abstractmethod
     def animate_simplex_tree(self, path_to_save):
         """
@@ -270,7 +269,7 @@ class BaseComplex:
         :type  path_to_save: str
         """
 
-    
+
     def tomato(self, max_fil_val=7.5):
         """
         ToMATo clustering with automatic choice of number of clusters.
@@ -283,5 +282,3 @@ class BaseComplex:
         tomato_clustering.fit(self.get_adjacency_list(max_fil_val), weights=self.density_class.random_density(self.points))
         tomato_clustering.n_clusters_ = self.betti[0]
         return tomato_clustering
-
-
