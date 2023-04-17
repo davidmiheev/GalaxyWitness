@@ -112,7 +112,7 @@ class Clusterization:
 
     :param centers_of_mass: collection of computed centers of mass,
     info contained about each center: [coord_1, coord_2, coord_3, weight]
-    :type: centers_of_mass: list()
+    :type centers_of_mass: list
 
     """
     __slots__ = [
@@ -125,6 +125,9 @@ class Clusterization:
     ]
 
     def __init__(self, points, n_clusters=0, clusters=None):
+        """
+        Constuctor
+        """
         self.points = points
         self.labels = None
         self.n_clusters = n_clusters
@@ -133,6 +136,9 @@ class Clusterization:
         self.centers_of_mass = []
 
     def center_of_mass(self):
+        """
+        Compute centroids of clusters in clustering
+        """
         for cluster in self.clusters:
             weight = sum(cluster[3])  #
             av_x = sum(np.multiply(cluster[0], cluster[3])) / weight
@@ -157,11 +163,21 @@ class Clusterization:
         self.center_of_mass()
 
     def import_clustering(self, labels):
+        """
+        Import outer clustering
+        :param labels: labels of outer clustering
+        :type labels: list or np.ndarray
+        """
         self.labels = labels
         self._build_clustering()
 
 
     def tomato(self, max_fil_val=7.5):
+        """
+        Tomato clustering
+        :param max_fil_val: maximum value of filtration
+        :type max_fil_val: float
+        """
         tomato = Tomato(density_type='DTM')
         tomato.fit(self.points)
         #self.n_clusters = self._compute_number_of_clusters(tomato.diagram_, max_fil_val)
@@ -181,6 +197,11 @@ class Clusterization:
         return len(new_diag)
 
     def draw_projections(self, num):
+        """
+        Draw projections of clustering of point cloud on the several random planes
+        :param num: number of planes
+        :type num: int
+        """
         thetas = np.random.rand(num)*np.pi
         axes = np.random.randn(3, num)
         axes /= np.linalg.norm(axes, axis=0)
@@ -196,6 +217,9 @@ class Clusterization:
 
 
     def draw_clustering(self):
+        """
+        Draw clustering of point cloud
+        """
         fig = go.Figure(data=[go.Scatter3d(x=self.points[:, 0],
                                            y=self.points[:, 1],
                                            z=self.points[:, 2],
@@ -209,6 +233,11 @@ class Clusterization:
 
 
     def compare_clusterization(self, other):
+        """
+        Compare two clusterizations (not ready)
+        :param other: another clustering
+        :type num: galaxywitness.clusterization.Clusterization
+        """
         if not self.centers_of_mass_computed:
             self.center_of_mass()
         if not other.centers_of_mass_computed:
