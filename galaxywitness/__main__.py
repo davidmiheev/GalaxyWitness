@@ -42,6 +42,7 @@ from galaxywitness.witness_complex import WitnessComplex
 from galaxywitness.alpha_complex import AlphaComplex
 from galaxywitness.rips_complex import RipsComplex
 from galaxywitness.datasets import Dataset
+from galaxywitness.clusterization import Clusterization
 
 session = PromptSession(history=InMemoryHistory(),
                         auto_suggest=AutoSuggestFromHistory())
@@ -106,7 +107,7 @@ def draw_diagrams_and_animation(fil_complex, key_anim, path_to_save, key_fig):
             fil_complex.animate_simplex_tree(path_to_save=path_to_save)
 
     fil_complex.get_diagram(show=True, path_to_save=path_to_save)
-    fil_complex.get_barcode(show=True, path_to_save=path_to_save)
+    # fil_complex.get_barcode(show=True, path_to_save=path_to_save)
 
 
 def clustering(fil_complex, points, r_max, path_to_save):
@@ -133,6 +134,7 @@ def clustering(fil_complex, points, r_max, path_to_save):
 
     print(f"\033[F\U0001F345 clustering... done\033[01;32m \u2714\033[0m\
     in \033[01;32m{t}\033[0m sec.\n")
+    return tomato
 
 
 def download_prepared_datasets():
@@ -218,7 +220,7 @@ def main():
         url = 'https://galaxywitness.rtfd.io' #'file://' + os.path.abspath('.') + '/docs/build/html/index.html'
         webbrowser.open(url, new=2)
         print("Done\033[01;32m \u2714\033[0m")
-    
+
     try:
         df = preconfiguration()
     except ValueError as e:
@@ -384,14 +386,14 @@ def main():
 
     complex_.compute_simplicial_complex(d_max=MAX_DIM, r_max=r_max, custom=(key_complex_type == 'custom'))
 
-    if key_complex_type == 'gudhi':
-        magnitude_level = (r_max ** 2) / 2.0
+    if type_of_complex == 'alpha':
+        magnitude_levels = [(r_max ** 2),  (r_max ** 2) / 2.0, (r_max ** 2) / 2.0]
     else:
-        magnitude_level = r_max / 2.0
+        magnitude_levels = [r_max, r_max / 2.0,  r_max / 2.0]
 
     simplex_tree = complex_.simplex_tree
 
-    betti = complex_.get_persistence_betti(dim=MAX_DIM, magnitude=magnitude_level)
+    betti = complex_.get_persistence_betti(dim=MAX_DIM, magnitudes=magnitude_levels)
 
     t = time.time() - t
 
@@ -418,7 +420,19 @@ def main():
     if tomato_key == 'y':
         if type_of_complex != "witness":
             # clustering(complex_, complex_.witnesses, path_to_save, den_type, graph_type_)
-            clustering(complex_, complex_.points, r_max, path_to_save)
+            tomato = clustering(complex_, complex_.points, r_max, path_to_save)
+
+        print("Warning: results down below is additional experimental functionality")
+        cl_1, cl_2 = Clusterization(points), Clusterization(points)
+        cl_1.import_clustering(tomato.labels_)
+        cl_2.tomato(r_max)
+        print("Draw clustering...")
+        cl_2.draw_clustering()
+        print("Draw projections of clustering on random planes...")
+        cl_2.draw_projections(2)
+        diff = cl_1.compare_clusterization(cl_2)
+        print(f"Test Difference between clusterings is \033[01;32m {diff}\033[0m")
+
 
 
 if __name__ == '__main__':

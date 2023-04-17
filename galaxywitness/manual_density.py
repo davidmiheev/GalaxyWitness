@@ -1,5 +1,5 @@
 import numpy as np
-
+from gudhi.point_cloud.dtm import DTMDensity
 
 class ManualDensity:
     """
@@ -22,6 +22,10 @@ class ManualDensity:
 
         """
         return np.array(np.random.rand(1, len(points))[0])
+
+    def dtm_density(self, points):
+        dtm = DTMDensity(k=100)
+        return dtm.fit_transform(points)
 
     # TODO
     # find out other useful density functions

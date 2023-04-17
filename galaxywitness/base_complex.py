@@ -64,14 +64,14 @@ class BaseComplex:
         self.simplex_tree = simplex_tree
         self.simplex_tree_computed = True
 
-    def get_persistence_betti(self, dim, magnitude):
+    def get_persistence_betti(self, dim, magnitudes):
         """
         Computation of persistence betti numbers
 
         :param dim: max dimension of betti numbers
         :type  dim: int
-        :param magnitude: level of significance
-        :type  magnitude: float
+        :param magnitudes: levels of significance
+        :type  magnitude: list[float]
         :return: list of persistence betti numbers for dimensions 0...dim
         :rtype: np.array
         """
@@ -81,7 +81,7 @@ class BaseComplex:
         for j in range(dim):
             pers = self.simplex_tree.persistence_intervals_in_dimension(j)
             for e in pers:
-                if e[1] - e[0] > magnitude:
+                if e[1] - e[0] >= magnitudes[j]:
                     betti[j] += 1
         self.betti = betti
         return betti
@@ -279,6 +279,6 @@ class BaseComplex:
         """
         assert self.simplex_tree_computed
         tomato_clustering = Tomato(graph_type='manual', density_type='manual')
-        tomato_clustering.fit(self.get_adjacency_list(max_fil_val), weights=self.density_class.random_density(self.points))
+        tomato_clustering.fit(self.get_adjacency_list(max_fil_val), weights=self.density_class.dtm_density(self.points))
         tomato_clustering.n_clusters_ = self.betti[0]
         return tomato_clustering

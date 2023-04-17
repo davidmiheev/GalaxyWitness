@@ -1,4 +1,13 @@
+from collections import defaultdict
+from itertools import groupby
 import numpy as np
+from scipy.spatial.transform import Rotation
+
+import plotly.express as px
+import plotly.graph_objects as go
+
+from gudhi.clustering.tomato import Tomato
+from gudhi.representations.preprocessing import ProminentPoints
 
 """
 If one wants to compare two clusterizations they should collect the data (lists of coordinates and weights) needed for
@@ -107,21 +116,25 @@ class Clusterization:
 
     """
     __slots__ = [
+        'points',
+        'labels',
         'n_clusters',
         'clusters',
         'centers_of_mass_computed',
         'centers_of_mass'
     ]
 
-    def __init__(self, n_clusters, clusters):
+    def __init__(self, points, n_clusters=0, clusters=None):
+        self.points = points
+        self.labels = None
         self.n_clusters = n_clusters
         self.clusters = clusters
         self.centers_of_mass_computed = False
-        self.centers_of_mass = list()
+        self.centers_of_mass = []
 
     def center_of_mass(self):
         for cluster in self.clusters:
-            weight = sum(cluster[0])  #
+            weight = sum(cluster[3])  #
             av_x = sum(np.multiply(cluster[0], cluster[3])) / weight
             av_y = sum(np.multiply(cluster[1], cluster[3])) / weight
             av_z = sum(np.multiply(cluster[2], cluster[3])) / weight
@@ -129,12 +142,79 @@ class Clusterization:
         self.centers_of_mass_computed = True
         return self.centers_of_mass
 
+    def _build_clustering(self):
+        if self.labels is None: return
+        self.clusters = []
+        labels = defaultdict(list)
+        for i, l in enumerate(self.labels):
+            labels[l].append(i)
+
+        for label, cluster in labels.items():
+            # temp = np.array(cluster)
+            self.clusters.append([self.points[cluster, 0], self.points[cluster, 1], self.points[cluster, 2], [1.]*len(cluster)])
+
+        self.n_clusters = len(self.clusters)
+        self.center_of_mass()
+
+    def import_clustering(self, labels):
+        self.labels = labels
+        self._build_clustering()
+
+
+    def tomato(self, max_fil_val=7.5):
+        tomato = Tomato(density_type='DTM')
+        tomato.fit(self.points)
+        #self.n_clusters = self._compute_number_of_clusters(tomato.diagram_, max_fil_val)
+        #tomato.n_clusters_ = self.n_clusters
+        self.n_clusters = tomato.n_clusters_
+        self.labels = tomato.labels_
+        self._build_clustering()
+
+
+    def _compute_number_of_clusters(self, diag, max_fil_val=7.5):
+        new_diag = []
+
+        if diag.size > 0:
+            prom = ProminentPoints(use=True, num_pts=len(diag), threshold=max(np.abs(diag[:,1]-diag[:,0]))*0.5)
+            new_diag = prom.transform([diag])
+
+        return len(new_diag)
+
+    def draw_projections(self, num):
+        thetas = np.random.rand(num)*np.pi
+        axes = np.random.randn(3, num)
+        axes /= np.linalg.norm(axes, axis=0)
+        for j in range(num):
+            axis = axes[:, j]
+            rotation = Rotation.from_quat([np.sin(thetas[j])*axis[0], np.sin(thetas[j])*axis[1],\
+                np.sin(thetas[j])*axis[2], np.cos(thetas[j])])
+            points = rotation.apply(self.points)
+            fig = px.scatter(x=points[:, 0], y=points[:, 1], color=self.labels)
+            fig.update_traces(marker_size=2)
+            fig.show()
+            # draw(points[:, 0], points[:, 1])
+
+
+    def draw_clustering(self):
+        fig = go.Figure(data=[go.Scatter3d(x=self.points[:, 0],
+                                           y=self.points[:, 1],
+                                           z=self.points[:, 2],
+                                           mode='markers',
+                                           marker=dict(size=1, color=self.labels))])
+
+        fig.update_layout(scene=dict(xaxis_title="X, Mpc",
+                                     yaxis_title="Y, Mpc",
+                                     zaxis_title="Z, Mpc"))
+        fig.show()
+
+
     def compare_clusterization(self, other):
         if not self.centers_of_mass_computed:
             self.center_of_mass()
         if not other.centers_of_mass_computed:
             other.center_of_mass()
 
+        print(self.n_clusters, other.n_clusters)
         a = distances_matrix(self.centers_of_mass, other.centers_of_mass)
         cost, matches = Hungarian(a)
 
