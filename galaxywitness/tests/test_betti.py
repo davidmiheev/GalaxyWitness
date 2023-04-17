@@ -40,4 +40,4 @@ complex_.__init__(points=landmarks)
 key_complex_type = 'gudhi'
 complex_.compute_simplicial_complex(d_max=3, r_max=7.5, custom=(key_complex_type == 'custom'))
 
-assert len(complex_.get_persistence_betti(dim=3, magnitude=7.5 / 2.0)) != 0
+assert len(complex_.get_persistence_betti(dim=3, magnitudes=[7.5, 7.5 / 2.0, 7.5 / 2.0])) != 0

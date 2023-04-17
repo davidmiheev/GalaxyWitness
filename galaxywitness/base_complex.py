@@ -135,6 +135,18 @@ class BaseComplex:
         plt.close()
 
     def draw_simplicial_complex(self, num, filtration_val, backend, path_to_save=None):
+        """
+        Draw simplicial complex with filtration value filtration_val
+
+        :param num: number of step
+        :type  num: int
+        :param filtration_val: filtration value
+        :type  filtration_val: float
+        :param backend: backend for drawing
+        :type  backend: str
+        :param path_to_save: place, where we are saving files
+        :type  path_to_save: str
+        """
         assert self.simplex_tree_computed
 
         data = []
@@ -176,11 +188,12 @@ class BaseComplex:
                     if backend == 'mpl':
                         ax.plot(x, y, z, color=colors.rgb2hex(np.random.rand(3)))
                     elif backend == 'plotly':
-                        data.append(go.Scatter3d(x=x,
-                                            y=y,
-                                            z=z,
-                                            marker=dict(size=1, color='blue'),
-                                            line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
+                        data.append(go.Scatter3d(
+                            x=x,
+                            y=y,
+                            z=z,
+                            marker=dict(size=1, color='blue'),
+                            line=dict(color=colors.rgb2hex(np.random.rand(3)), width=3)))
 
                 if len(edge[0]) == 3:
                     x = [self.points[edge[0][0]][0],
@@ -218,11 +231,12 @@ class BaseComplex:
             plt.show()
         elif backend == 'plotly':
             fig = go.Figure(data=data)
-            fig.update_layout(title=f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}",
-                              scene=dict(
-                              xaxis_title='X, Mpc',
-                              yaxis_title='Y, Mpc',
-                              zaxis_title='Z, Mpc'))
+            fig.update_layout(
+                        title=f"Animation of alpha filtration: picture #{num} of {NUMBER_OF_FRAMES}",
+                        scene=dict(
+                        xaxis_title='X, Mpc',
+                        yaxis_title='Y, Mpc',
+                        zaxis_title='Z, Mpc'))
 
             if path_to_save is not None:
                 fig.write_image(path_to_save + f"/picture{num}.pdf")
@@ -279,6 +293,7 @@ class BaseComplex:
         """
         assert self.simplex_tree_computed
         tomato_clustering = Tomato(graph_type='manual', density_type='manual')
-        tomato_clustering.fit(self.get_adjacency_list(max_fil_val), weights=self.density_class.dtm_density(self.points))
+        tomato_clustering.fit(self.get_adjacency_list(max_fil_val), 
+                              weights=self.density_class.dtm_density(self.points))
         tomato_clustering.n_clusters_ = self.betti[0]
         return tomato_clustering

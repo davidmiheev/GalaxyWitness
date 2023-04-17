@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import groupby
+# from itertools import groupby
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -155,9 +155,10 @@ class Clusterization:
         for i, l in enumerate(self.labels):
             labels[l].append(i)
 
-        for label, cluster in labels.items():
+        for _, cluster in labels.items():
             # temp = np.array(cluster)
-            self.clusters.append([self.points[cluster, 0], self.points[cluster, 1], self.points[cluster, 2], [1.]*len(cluster)])
+            self.clusters.append([self.points[cluster, 0], self.points[cluster, 1], 
+                                  self.points[cluster, 2], [1.]*len(cluster)])
 
         self.n_clusters = len(self.clusters)
         self.center_of_mass()

@@ -6,12 +6,6 @@ class ManualDensity:
     Class for handling density functions
 
     """
-    def __init__(self):
-        """
-        Constuctor
-
-        """
-        pass
 
     def random_density(self, points):
         """
