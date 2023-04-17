@@ -165,6 +165,7 @@ class Clusterization:
     def import_clustering(self, labels):
         """
         Import outer clustering
+
         :param labels: labels of outer clustering
         :type labels: list or np.ndarray
         """
@@ -175,12 +176,13 @@ class Clusterization:
     def tomato(self, max_fil_val=7.5):
         """
         Tomato clustering
+
         :param max_fil_val: maximum value of filtration
         :type max_fil_val: float
         """
         tomato = Tomato(density_type='DTM')
         tomato.fit(self.points)
-        #self.n_clusters = self._compute_number_of_clusters(tomato.diagram_, max_fil_val)
+        self.n_clusters = self._compute_number_of_clusters(tomato.diagram_, max_fil_val)
         #tomato.n_clusters_ = self.n_clusters
         self.n_clusters = tomato.n_clusters_
         self.labels = tomato.labels_
@@ -191,7 +193,7 @@ class Clusterization:
         new_diag = []
 
         if diag.size > 0:
-            prom = ProminentPoints(use=True, num_pts=len(diag), threshold=max(np.abs(diag[:,1]-diag[:,0]))*0.5)
+            prom = ProminentPoints(use=True, num_pts=len(diag), threshold=max_fil_val)
             new_diag = prom.transform([diag])
 
         return len(new_diag)
@@ -199,6 +201,7 @@ class Clusterization:
     def draw_projections(self, num):
         """
         Draw projections of clustering of point cloud on the several random planes
+
         :param num: number of planes
         :type num: int
         """
@@ -213,7 +216,6 @@ class Clusterization:
             fig = px.scatter(x=points[:, 0], y=points[:, 1], color=self.labels)
             fig.update_traces(marker_size=2)
             fig.show()
-            # draw(points[:, 0], points[:, 1])
 
 
     def draw_clustering(self):
@@ -235,6 +237,7 @@ class Clusterization:
     def compare_clusterization(self, other):
         """
         Compare two clusterizations (not ready)
+
         :param other: another clustering
         :type num: galaxywitness.clusterization.Clusterization
         """
@@ -245,6 +248,6 @@ class Clusterization:
 
         print(self.n_clusters, other.n_clusters)
         a = distances_matrix(self.centers_of_mass, other.centers_of_mass)
-        cost, matches = Hungarian(a)
+        cost, _ = Hungarian(a)
 
         return cost

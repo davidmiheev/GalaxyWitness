@@ -5,11 +5,13 @@ import pandas as pd
 from astropy.coordinates import SkyCoord
 from astropy.coordinates import Distance
 from astropy import units as u
-from galaxywitness.base_complex import BaseComplex
+
 # from galaxywitness.witness_complex import WitnessComplex
+from gudhi.clustering.tomato import Tomato
+from galaxywitness.base_complex import BaseComplex
 from galaxywitness.alpha_complex import AlphaComplex
 from galaxywitness.datasets import Dataset
-from gudhi.clustering.tomato import Tomato
+
 
 dataset = Dataset('Galaxies_400K')
 #print(dataset.inner_names)

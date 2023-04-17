@@ -20,6 +20,8 @@ jobs:
         pip install pylint
         pip install -r requirements.txt
         python setup.py install
+    - name: Run tests
+      run: pytest
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=trailing-whitespace,invalid-name,fixme,line-too-long,missing-module-docstring,redefined-builtin,wrong-import-position,missing-function-docstring,no-member,too-many-locals,too-many-branches,too-many-statements,too-many-arguments,arguments-differ,anomalous-backslash-in-string,unexpected-keyword-arg,unused-argument,duplicate-code,protected-access,unnecessary-dunder-call,use-dict-literal,multiple-statements,broad-exception-raised,superfluous-parens, $(git ls-files '*.py')
+        pylint --disable=trailing-whitespace,invalid-name,fixme,line-too-long,missing-module-docstring,redefined-builtin,wrong-import-position,missing-function-docstring,no-member,too-many-locals,too-many-branches,too-many-statements,too-many-arguments,arguments-differ,anomalous-backslash-in-string,unexpected-keyword-arg,unused-argument,duplicate-code,protected-access,unnecessary-dunder-call,use-dict-literal,multiple-statements,broad-exception-raised,superfluous-parens,pointless-string-statement $(git ls-files '*.py')
