@@ -52,11 +52,11 @@ You can read more about the simplex tree in the article:
 About clustering (ToMATo)
 -------------------------
 
-ToMATo is a clustering algorithm. ToMATo starts with `graph k nearest neighbors <https://en.wikipedia.org/wiki/Nearest_neighbor_graph>`_ , then using the density function defined on the point cloud, combines the pieces of the original graph and obtains the required clustering (which is determined by the number of clusters and/or the threshold of significance per density function). This algorithm is a composition of two ideas: `Union-find forest <https://en.wikipedia.org/wiki/Disjoint-set_data_structure>`_ and `Morse theory <https://en.wikipedia.org/wiki/Morse_theory>`_.
+ToMATo is a clustering algorithm. ToMATo starts with a graph :math:`G`, for example, `graph k nearest neighbors <https://en.wikipedia.org/wiki/Nearest_neighbor_graph>`_ , then using the density function defined on the point cloud, combines the pieces of the original graph and obtains the required clustering (which is determined by the number of clusters and/or the threshold of significance per density function). This algorithm is a composition of two ideas: `Union-find forest <https://en.wikipedia.org/wiki/Disjoint-set_data_structure>`_ and `Morse theory <https://en.wikipedia.org/wiki/Morse_theory>`_.
 Let :math:`f` be a density function. Let's describe the steps of the algorithm:
 
 * We construct a graph :math:`G` (:math:`k` nearest neighbors or a Rips graph with the parameter :math:`\delta`).
-* Passing through the vertices of the graph: connect the current vertex :math:`v` with the neighboring :math:`w` if :math`f(w)` is the largest value of :math:`f` among the vertices adjacent to the vertex :math:`v`. We get a spanning forest on the vertices of the original graph :math:`G`. Moreover, the root of each tree will be a vertex with a local maximum of the density function.
+* Passing through the vertices of the graph: connect the current vertex :math:`v` with the neighboring :math:`w` if :math:`f(w)` is the largest value of :math:`f` among the vertices adjacent to the vertex :math:`v`. We get a spanning forest on the vertices of the original graph :math:`G`. Moreover, the root of each tree will be a vertex with a local maximum of the density function.
 * We combine trees whose roots have a small value of the density function. Namely, we connect the roots of two trees from the root with a smaller value of the density function to the function with a larger value of the density function. We continue until the required clustering is obtained.
 
 You can read more about ToMATo in the article:

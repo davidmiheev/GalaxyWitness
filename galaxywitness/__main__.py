@@ -199,7 +199,7 @@ def preconfiguration():
             print(f"\t\033[01;32m[{elem.index(name) + 1}] <-> {name}\033[0m")
     print("\t---------------------------\n")
 
-    table_num = int(input(f" > Enter number of your table [1-{len(elem)}]: "))
+    table_num = int(session.prompt(f" > Enter number of your table [1-{len(elem)}]: ", auto_suggest=AutoSuggestFromHistory()))
     path = os.path.abspath('.') + '/data/' + elem[table_num - 1]
 
     print(f"Loading data from \033[01;32m{path}\033[0m...")
@@ -226,8 +226,7 @@ def main():
     except ValueError as e:
         raise Exception("\033[01;31mFolder 'data' does not exist or empty!\033[0m") from e
 
-    # readline.set_auto_history(True)
-    n_gal = int(input(f" > Enter number of galaxies [10...{len(df)}]: "))
+    n_gal = int(session.prompt(f" > Enter number of galaxies [10...{len(df)}]: ", auto_suggest=AutoSuggestFromHistory()))
 
     print("Choose type of complex:")
     print("\n\t---------- complexes -----------")
@@ -244,7 +243,7 @@ def main():
         type_of_complex = "witness"
 
     if type_of_complex == "witness":
-        n_landmarks = int(input(f" > Enter number of landmarks [10...{n_gal}]: "))
+        n_landmarks = int(session.prompt(f" > Enter number of landmarks [10...{n_gal}]: ", auto_suggest=AutoSuggestFromHistory()))
     else:
         n_landmarks = n_gal
 
@@ -263,24 +262,24 @@ def main():
     # max_edge_length = np.inf
     sparse = None
 
-    key_plot_cloud = input(" > Do you want plot the point cloud? [y/n]: ")
-    key_anim = input(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ")
+    key_plot_cloud = session.prompt(' > Do you want plot the point cloud? [y/n]: ', auto_suggest=AutoSuggestFromHistory())
+    key_anim = session.prompt(f" > Do you want watch the animation of {type_of_complex} filtration? [y/n]: ", auto_suggest=AutoSuggestFromHistory())
     if key_anim == 'y':
-        key_fig = input(
-            " > What will we use for the animation of a filtered complex? [plotly(more slow, but more cool)/mpl(matplotlib)]: ")
-    key_save = input(" > Do you want save all plots to \033[01;32m./imgs\033[0m? [y/n]: ")
-    tomato_key = input(" > Do you want run\033[01;32m tomato\033[0m clustering? [y/n]: ")
-    key_adv = input(" > Advanced configuration? [y/n]: ")
+        key_fig = session.prompt(
+            " > What will we use for the animation of a filtered complex? [plotly(more slow, but more cool)/mpl(matplotlib)]: ", auto_suggest=AutoSuggestFromHistory())
+    key_save = session.prompt(" > Do you want save all plots to ./imgs? [y/n]: ", auto_suggest=AutoSuggestFromHistory())
+    tomato_key = session.prompt(" > Do you want run tomato clustering? [y/n]: ", auto_suggest=AutoSuggestFromHistory())
+    key_adv = session.prompt(" > Advanced configuration? [y/n]: ", auto_suggest=AutoSuggestFromHistory())
     if key_adv == 'y':
-        key_complex_type = input(" > What type of simplicial complex will we use? [gudhi/custom]: ")
-        r_max = float(input(
-            " > Enter max value of filtration[\033[01;32m usually \u2264 15\033[0m, the more the slower calculate]: "))
+        key_complex_type = session.prompt(" > What type of simplicial complex will we use? [gudhi/custom]: ", auto_suggest=AutoSuggestFromHistory())
+        r_max = float(session.prompt(
+            " > Enter max value of filtration [usually \u2264 15, the more the slower calculations]: ", auto_suggest=AutoSuggestFromHistory()))
         if type_of_complex == "witness":
-            first_witness = int(input(f" > Enter first witness [\033[01;32m usually 0\033[0m, range: 0...{len(df) - n_gal}]: "))
+            first_witness = int(session.prompt(f" > Enter first witness [range: 0...{len(df) - n_gal}]: ", auto_suggest=AutoSuggestFromHistory()))
         if r_max == -1:
             r_max = None
         if type_of_complex == "rips":
-            sparse = float(input(" > Enter 'sparse' parameter to build sparse Rips or -1: "))
+            sparse = float(session.prompt(" > Enter 'sparse' parameter to build sparse Rips or -1: ", auto_suggest=AutoSuggestFromHistory()))
             if sparse == -1:
                 sparse = None
 
@@ -319,7 +318,7 @@ def main():
 
     for name in ('ra', 'dec', 'z'):
         column_nums.append(
-            int(input(f" > Choose column for \033[01;32m{name}\033[0m, from list above (column names): ")))
+            int(session.prompt(f" > Choose column for {name}, from list above (column names): ", auto_suggest=AutoSuggestFromHistory())))
 
     column_names = [list(df)[column_nums[0]], list(df)[column_nums[1]], list(df)[column_nums[2]]]
 
@@ -422,16 +421,16 @@ def main():
             # clustering(complex_, complex_.witnesses, path_to_save, den_type, graph_type_)
             tomato = clustering(complex_, complex_.points, r_max, path_to_save)
 
-        print("Warning: results down below is additional experimental functionality")
-        cl_1, cl_2 = Clusterization(points), Clusterization(points)
-        cl_1.import_clustering(tomato.labels_)
-        cl_2.tomato(r_max)
-        print("Draw clustering...")
-        cl_2.draw_clustering()
-        print("Draw projections of clustering on random planes...")
-        cl_2.draw_projections(2)
-        diff = cl_1.compare_clusterization(cl_2)
-        print(f"Test Difference between clusterings is \033[01;32m {diff}\033[0m")
+            print("Warning: results down below is additional experimental functionality")
+            cl_1, cl_2 = Clusterization(points), Clusterization(points)
+            cl_1.import_clustering(tomato.labels_)
+            cl_2.tomato(r_max)
+            print("Draw clustering...")
+            cl_2.draw_clustering()
+            print("Draw projections of clustering on random planes...")
+            cl_2.draw_projections(2)
+            diff = cl_1.compare_clusterization(cl_2)
+            print(f"Test Difference between clusterings is \033[01;32m {diff}\033[0m")
 
 
 
