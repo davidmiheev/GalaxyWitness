@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "galaxywitness"
 version = "0.2.4"
-description = "Package for topological data analysis of the big data. It is attempt to study distribution of galaxies in the universe via TDA"
-authors = ["David Miheev <me@davidkorol.life>", "Artemii Shvetsov <myowneemail@gmail.com>", "Ivan Larin <rlar7007@gmail.com>"]
+description = "Package for topological data analysis of the big data. It is an attempt to study distribution of galaxies in the universe via TDA"
+authors = ["David Miheev <me@davidmiheev.life>", "Artemii Shvetsov <myowneemail@gmail.com>", "Ivan Larin <rlar7007@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/davidosx/GalaxyWitness"
+repository = "https://github.com/davidmiheev/GalaxyWitness"
 documentation = "https://galaxywitness.rtfd.io/"
 
 
