@@ -1,6 +1,6 @@
 # GalaxyWitness
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
-[![CodeFactor](https://www.codefactor.io/repository/github/davidosx/galaxywitness/badge/master)](https://www.codefactor.io/repository/github/davidosx/galaxywitness/overview/master)
+[![CodeFactor](https://www.codefactor.io/repository/github/davidmiheev/galaxywitness/badge)](https://www.codefactor.io/repository/github/davidmiheev/galaxywitness)
 [![Documentation Status](https://readthedocs.org/projects/galaxywitness/badge/?version=latest)](https://galaxywitness.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/galaxywitness.svg)](https://badge.fury.io/py/galaxywitness)
 
@@ -18,7 +18,7 @@ For the best experience, use python virtual environment:
 ```sh
 pip3 install virtualenv
 virtualenv env (or python3 -m virtualenv galaxy-witness)
-. ./env/bin/activate
+source ./env/bin/activate
 ```
 Install this package from PyPI via ```pip install galaxywitness```
 
@@ -57,11 +57,11 @@ This will create a new virtual environment called "galaxy-witness":
 ```sh
 pip3 install virtualenv
 virtualenv galaxy-witness (or python3 -m virtualenv galaxy-witness)
-. ./galaxy-witness/bin/activate
+source ./galaxy-witness/bin/activate
 ``` 
 This will clone the repository "GalaxyWitness" on your local machine, install dependencies and install this package 'galaxywitness':
 ```sh
-git clone https://github.com/davidosx/GalaxyWitness
+git clone https://github.com/davidmiheev/GalaxyWitness
 cd GalaxyWitness
 pip install -r requirements.txt
 python setup.py install
@@ -70,7 +70,7 @@ python setup.py install
 Or poetry package manager:
 ### Poetry
 ```sh
-git clone https://github.com/davidosx/GalaxyWitness
+git clone https://github.com/davidmiheev/GalaxyWitness
 cd GalaxyWitness
 poetry install
 ```
